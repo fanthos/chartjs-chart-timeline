@@ -1,38 +1,8 @@
+(function () {
 const helpers = Chart.helpers;
 const isArray = helpers.isArray;
 
-// var time = {
-// 		units: [{
-// 			name: 'millisecond',
-// 			steps: [1, 2, 5, 10, 20, 50, 100, 250, 500]
-// 		}, {
-// 			name: 'second',
-// 			steps: [1, 2, 5, 10, 30]
-// 		}, {
-// 			name: 'minute',
-// 			steps: [1, 2, 5, 10, 30]
-// 		}, {
-// 			name: 'hour',
-// 			steps: [1, 2, 3, 6, 12]
-// 		}, {
-// 			name: 'day',
-// 			steps: [1, 2, 3, 5]
-// 		}, {
-// 			name: 'week',
-// 			maxStep: 4
-// 		}, {
-// 			name: 'month',
-// 			maxStep: 3
-// 		}, {
-// 			name: 'quarter',
-// 			maxStep: 4
-// 		}, {
-// 			name: 'year',
-// 			maxStep: false
-// 		}]
-// };
-
-var myConfig = {
+var TimelineConfig = {
     myTime : {
         redoLabels: false
     },
@@ -140,7 +110,7 @@ function sorter(a, b) {
 var MIN_INTEGER = Number.MIN_SAFE_INTEGER || -9007199254740991;
 var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
 
-var myTimeScale = Chart.scaleService.getScaleConstructor('time').extend({
+var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
 
     determineDataLimits: function() {
         var me = this;
@@ -150,7 +120,6 @@ var myTimeScale = Chart.scaleService.getScaleConstructor('time').extend({
         var max = MIN_INTEGER;
         var timestampset = new Set();
         var datasets = [];
-        // var labels = [];
         var i, j, ilen, jlen, data, timestamp0, timestamp1;
 
         // Convert data to timestamps
@@ -203,14 +172,14 @@ var myTimeScale = Chart.scaleService.getScaleConstructor('time').extend({
         me._timestamps = {
             data: timestamps,
             datasets: datasets,
-            //labels: labels
+            labels: []
         };
     },
 });
 
-Chart.scaleService.registerScaleType('myTime', myTimeScale, myConfig);
+Chart.scaleService.registerScaleType('timeline', TimelineScale, TimelineConfig);
 
-Chart.controllers.timeLine = Chart.controllers.bar.extend({
+Chart.controllers.timeline = Chart.controllers.bar.extend({
 
     getBarBounds : function (bar) {
         var vm =   bar._view;
@@ -256,30 +225,20 @@ Chart.controllers.timeLine = Chart.controllers.bar.extend({
 
         var ruler = me.getRuler(index);
 
-        // if (index !== 0)
-        //     index = index * 2;
-
         var x = xScale.getPixelForValue(data[0]);
-        //index++;
         var end = xScale.getPixelForValue(data[1]);
 
         var y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
-        // var tickHeight = yScale.getPixelForTick(index + 1) - yScale.getPixelForTick(index);
         var width = end - x;
         var height = me.calculateBarHeight(ruler);
         var color = me.chart.options.colorFunction(data);
-        // var ipixels = me.calculateBarIndexPixels(me.index, 0, ruler);
-        // var height = ipixels.size;
 
         // This one has in account the size of the tick and the height of the bar, so we just
         // divide both of them by two and subtract the height part and add the tick part
         // to the real position of the element y. The purpose here is to place the bar
         // in the middle of the tick.
         var boxY = y - (height / 2);
-        // var boxY = ipixels.center;
 
-        console.log(me.chart.data.labels[datasetIndex] + ' box x ' + datasetIndex + ' : ' + x);
-        console.log(me.chart.data.labels[datasetIndex] + ' box y ' + datasetIndex + ' : ' + boxY);
         rectangle._model = {
             x: reset ?  x - width : x,   // Top left of rectangle
             y: boxY , // Top left of rectangle
@@ -343,44 +302,6 @@ Chart.controllers.timeLine = Chart.controllers.bar.extend({
         rectangle.pivot();
     },
 
-    // From controller.bar
-    // getRuler: function(index) {
-    //     var me = this;
-    //     var meta = me.getMeta();
-    //     var yScale = me.getScaleForId(meta.yAxisID);
-    //     var datasetCount = me.getBarCount();
-
-    //     var tickHeight;
-    //     if (yScale.options.type === 'category') {
-    //         tickHeight = yScale.getPixelForTick(index + 1) - yScale.getPixelForTick(index);
-    //     } else {
-    //         // Average width
-    //         tickHeight = yScale.width / yScale.ticks.length;
-    //     }
-    //     var categoryHeight = tickHeight * yScale.options.categoryPercentage;
-    //     var categorySpacing = (tickHeight - (tickHeight * yScale.options.categoryPercentage)) / 2;
-    //     var fullBarHeight = categoryHeight / datasetCount;
-
-    //     if (yScale.ticks.length !== me.chart.data.labels.length) {
-    //         var perc = yScale.ticks.length / me.chart.data.labels.length;
-    //         fullBarHeight = fullBarHeight * perc;
-    //     }
-
-    //     var barHeight = fullBarHeight * yScale.options.barPercentage;
-    //     var barSpacing = fullBarHeight - (fullBarHeight * yScale.options.barPercentage);
-
-    //     return {
-    //         datasetCount: datasetCount,
-    //         tickHeight: tickHeight,
-    //         categoryHeight: categoryHeight,
-    //         categorySpacing: categorySpacing,
-    //         fullBarHeight: fullBarHeight,
-    //         barHeight: barHeight,
-    //         barSpacing: barSpacing
-    //     };
-    // },
-
-    // From controller.bar
     getBarCount: function() {
         var me = this;
         var barCount = 0;
@@ -426,7 +347,7 @@ Chart.controllers.timeLine = Chart.controllers.bar.extend({
 });
 
 
-Chart.defaults.timeLine = {
+Chart.defaults.timeline = {
 
     colorFunction: function() {
         return 'black';
@@ -447,7 +368,7 @@ Chart.defaults.timeLine = {
 
     scales: {
         xAxes: [{
-            type: 'myTime',
+            type: 'timeline',
             position: 'bottom',
             distribution: 'linear',
 			categoryPercentage: 0.8,
@@ -492,28 +413,4 @@ Chart.defaults.timeLine = {
         }
     }
 };
-
-var colorArray = ['red', 'blue', 'green', 'navy', 'grey', 'purple', 'orange'];
-var knownColors = {
-    'on': 'green',
-    'off': 'red',
-    'idle': 'blue',
-}
-
-function getColorFunc() {
-    var colorTable = Object.assign({}, knownColors);
-    var colors = 3;
-    return function colorFunction(data) {
-        var dataLabel = data[2];
-        if (dataLabel) {
-            var x = colorTable[dataLabel];
-            if (!x) {
-                x = colorArray[colors++];
-                colorTable[dataLabel] = x;
-            }
-            return x;
-        } else {
-            return colorArray[Math.floor(Math.random() * colorArray.length)];
-        }
-    }
-}
+})();
