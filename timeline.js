@@ -376,7 +376,7 @@ Chart.defaults.timeline = {
 
             gridLines: {
                 display: true,
-                offsetGridLines: true,
+                // offsetGridLines: true,
                 drawBorder: true,
                 drawTicks: true
             },
