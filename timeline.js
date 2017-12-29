@@ -16,19 +16,21 @@ var TimelineConfig = {
         displayFormat: false, // DEPRECATED
         isoWeekday: false, // override week start day - see http://momentjs.com/docs/#/get-set/iso-weekday/
         minUnit: 'millisecond',
+		distribution: 'linear',
+		bounds: 'data',
 
         // defaults to unit's corresponding unitFormat below or override using pattern string from http://momentjs.com/docs/#/displaying/format/
         displayFormats: {
             millisecond: 'h:mm:ss.SSS a', // 11:20:01.123 AM,
             second: 'h:mm:ss a', // 11:20:01 AM
-            minute: 'h:mm:ss a', // 11:20:01 AM
-            quarter: '[Q]Q - YYYY', // Q3
-            year: 'YYYY', // 2015        
-            hour: 'MMM D, hA', // Sept 4, 5PM
-            day: 'll', // Sep 4 2015
+            minute: 'h:mm a', // 11:20 AM
+            hour: 'hA', // 5PM
+            day: 'MMM D', // Sep 4
             week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
             month: 'MMM YYYY', // Sept 2015
-            }
+            quarter: '[Q]Q - YYYY', // Q3
+            year: 'YYYY' // 2015
+        },
     },
     ticks: {
         autoSkip: false
@@ -118,9 +120,11 @@ var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
         var timeOpts = me.options.time;
         var min = MAX_INTEGER;
         var max = MIN_INTEGER;
-        var timestampset = new Set();
+        var timestamps = [];
+        var timestampobj = {};
         var datasets = [];
         var i, j, ilen, jlen, data, timestamp0, timestamp1;
+
 
         // Convert data to timestamps
         for (i = 0, ilen = (chart.data.datasets || []).length; i < ilen; ++i) {
@@ -141,18 +145,22 @@ var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
                         max = timestamp1;
                     }
                     datasets[i][j] = [timestamp0, timestamp1, data[j][2]];
-                    timestampset.add(timestamp0);
-                    timestampset.add(timestamp1);
+                    if (timestampobj.hasOwnProperty(timestamp0)) {
+                        timestampobj[timestamp0] = true;
+                        timestamps.push(timestamp0);
+                    }
+                    if (timestampobj.hasOwnProperty(timestamp1)) {
+                        timestampobj[timestamp1] = true;
+                        timestamps.push(timestamp1);
+                    }
                 }
             } else {
                 datasets[i] = [];
             }
         }
         
-        if (timestampset.size) {
-            timestamps = Array.from(timestampset).sort(sorter);
-        } else {
-            timestamps = [];
+        if (timestamps.size) {
+            timestamps.sort(sorter);
         }
 
         min = parse(timeOpts.min, me) || min;
@@ -231,7 +239,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         var y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
         var width = end - x;
         var height = me.calculateBarHeight(ruler);
-        var color = me.chart.options.colorFunction(data);
+        var color = me.chart.options.colorFunction(data[2]);
 
         // This one has in account the size of the tick and the height of the bar, so we just
         // divide both of them by two and subtract the height part and add the tick part
@@ -245,7 +253,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
             width: width,
             height: height,
             base: x + width,
-            backgroundColor: color,
+            backgroundColor: color.rgbaString(),
             borderSkipped: custom.borderSkipped ? custom.borderSkipped : rectangleElementOptions.borderSkipped,
             borderColor: custom.borderColor ? custom.borderColor : helpers.getValueAtIndexOrDefault(dataset.borderColor, index, rectangleElementOptions.borderColor),
             borderWidth: custom.borderWidth ? custom.borderWidth : helpers.getValueAtIndexOrDefault(dataset.borderWidth, index, rectangleElementOptions.borderWidth),
