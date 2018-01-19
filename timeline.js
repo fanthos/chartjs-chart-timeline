@@ -231,6 +231,8 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         rectangle._datasetIndex = me.index;
         rectangle._index = index;
 
+        var text = data[2];
+
         var ruler = me.getRuler(index);
 
         var x = xScale.getPixelForValue(data[0]);
@@ -239,7 +241,14 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         var y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
         var width = end - x;
         var height = me.calculateBarHeight(ruler);
-        var color = me.chart.options.colorFunction(data[2]);
+        var color = me.chart.options.colorFunction(text);
+        var showText = me.chart.options.showText;
+
+        var font = me.chart.options.elements.font;
+
+        if (!font) {
+            font = '12px bold Arial';
+        }
 
         // This one has in account the size of the tick and the height of the bar, so we just
         // divide both of them by two and subtract the height part and add the tick part
@@ -259,7 +268,9 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
             borderWidth: custom.borderWidth ? custom.borderWidth : helpers.getValueAtIndexOrDefault(dataset.borderWidth, index, rectangleElementOptions.borderWidth),
             // Tooltip
             label: me.chart.data.labels[index],
-            datasetLabel: dataset.label
+            datasetLabel: dataset.label,
+            text: text,
+            textColor: color.luminosity() > 0.5 ? '#000000' : '#ffffff',
         };
 
         rectangle.draw = function() {
@@ -269,6 +280,19 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
             ctx.lineWidth = vm.borderWidth;
             helpers.drawRoundedRectangle(ctx, vm.x, vm.y, vm.width, vm.height, 1);
             ctx.fill();
+            if (showText) {
+                ctx.beginPath();
+                var textRect = ctx.measureText(vm.text);
+                if (textRect.width > 0 && textRect.width < vm.width) {
+                    ctx.font = font;
+                    ctx.fillStyle = vm.textColor;
+                    ctx.lineWidth = 0;
+                    ctx.strokeStyle = vm.textColor;
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(vm.text, vm.x, vm.y + (vm.height) / 2);
+                }
+                ctx.fill();
+            }
         };
 
         rectangle.inXRange = function (mouseX) {
@@ -358,8 +382,10 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 Chart.defaults.timeline = {
 
     colorFunction: function() {
-        return 'black';
+        return Color('black');
     },
+
+    showText: true,
 
     layout: {
         padding: {
