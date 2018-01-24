@@ -3,11 +3,11 @@ const helpers = Chart.helpers;
 const isArray = helpers.isArray;
 
 var TimelineConfig = {
-    myTime : {
-        redoLabels: false
-    },
     position: 'bottom',
 
+    tooltips: {
+        mode: 'nearest',
+    },
     time: {
         parser: false, // false == a pattern string from http://momentjs.com/docs/#/parsing/string-format/ or a custom callback that converts its argument to a moment
         format: false, // DEPRECATED false == date objects, moment object, callback or a pattern string from http://momentjs.com/docs/#/parsing/string-format/
