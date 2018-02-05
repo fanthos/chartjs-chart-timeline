@@ -241,7 +241,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         var y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
         var width = end - x;
         var height = me.calculateBarHeight(ruler);
-        var color = me.chart.options.colorFunction(text);
+        var color = me.chart.options.colorFunction(text, data);
         var showText = me.chart.options.showText;
 
         var font = me.chart.options.elements.font;

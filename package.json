@@ -1,0 +1,25 @@
+{
+  "name": "chartjs-chart-timeline",
+  "version": "0.1.3",
+  "description": "timeline chart type for chart.js",
+  "main": "timeline.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fanthos/chartjs-chart-timeline.git"
+  },
+  "keywords": [
+    "chartjs",
+    "chart",
+    "timeline",
+    "plugin"
+  ],
+  "author": "fanthos",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/fanthos/chartjs-chart-timeline/issues"
+  },
+  "homepage": "https://github.com/fanthos/chartjs-chart-timeline#readme"
+}
