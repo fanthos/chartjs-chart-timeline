@@ -225,6 +225,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         var custom = rectangle.custom || {};
         var datasetIndex = me.index;
         var rectangleElementOptions = me.chart.options.elements.rectangle;
+        var textPad = me.chart.options.textPadding;
 
         rectangle._xScale = xScale;
         rectangle._yScale = yScale;
@@ -283,13 +284,13 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
             if (showText) {
                 ctx.beginPath();
                 var textRect = ctx.measureText(vm.text);
-                if (textRect.width > 0 && textRect.width < vm.width) {
+                if (textRect.width > 0 && textRect.width + textPad + 2 < vm.width) {
                     ctx.font = font;
                     ctx.fillStyle = vm.textColor;
                     ctx.lineWidth = 0;
                     ctx.strokeStyle = vm.textColor;
                     ctx.textBaseline = 'middle';
-                    ctx.fillText(vm.text, vm.x, vm.y + (vm.height) / 2);
+                    ctx.fillText(vm.text, vm.x + textPad, vm.y + (vm.height) / 2);
                 }
                 ctx.fill();
             }
@@ -386,6 +387,8 @@ Chart.defaults.timeline = {
     },
 
     showText: true,
+
+    textPadding: 4,
 
     layout: {
         padding: {
