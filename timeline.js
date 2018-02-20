@@ -289,7 +289,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
                     ctx.lineWidth = 0;
                     ctx.strokeStyle = vm.textColor;
                     ctx.textBaseline = 'middle';
-                    ctx.fillText(vm.text, vm.x, vm.y + (vm.height) / 2);
+                    ctx.fillText(vm.text, vm.x + 5, vm.y + (vm.height) / 2);
                 }
                 ctx.fill();
             }
