@@ -283,7 +283,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
             if (showText) {
                 ctx.beginPath();
                 var textRect = ctx.measureText(vm.text);
-                if (textRect.width > 0 && textRect.width < vm.width) {
+                if (textRect.width > 0 && textRect.width + 7 < vm.width) {
                     ctx.font = font;
                     ctx.fillStyle = vm.textColor;
                     ctx.lineWidth = 0;
