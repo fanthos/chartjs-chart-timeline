@@ -260,7 +260,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         rectangle._model = {
             x: reset ?  x - width : x,   // Top left of rectangle
             y: boxY , // Top left of rectangle
-            width: width,
+            width: width > 1 ? width : 1,
             height: height,
             base: x + width,
             backgroundColor: color.rgbaString(),
@@ -277,10 +277,19 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         rectangle.draw = function() {
             var ctx = this._chart.ctx;
             var vm = this._view;
+            var oldAlpha = ctx.globalAlpha;
+            var oldOperation = ctx.globalCompositeOperation;
             ctx.fillStyle = vm.backgroundColor;
             ctx.lineWidth = vm.borderWidth;
-            helpers.drawRoundedRectangle(ctx, vm.x, vm.y, vm.width, vm.height, 1);
-            ctx.fill();
+            ctx.globalCompositeOperation = 'destination-over';
+            ctx.fillRect(vm.x, vm.y, vm.width, vm.height);
+
+            ctx.globalAlpha = 0.5;
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillRect(vm.x, vm.y, vm.width, vm.height);
+
+            ctx.globalAlpha = oldAlpha;
+            ctx.globalCompositeOperation = oldOperation;
             if (showText) {
                 ctx.beginPath();
                 var textRect = ctx.measureText(vm.text);
