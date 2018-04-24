@@ -226,6 +226,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         var datasetIndex = me.index;
         var rectangleElementOptions = me.chart.options.elements.rectangle;
         var textPad = me.chart.options.textPadding;
+        var minBarWidth = me.chart.options.minBarWidth;
 
         rectangle._xScale = xScale;
         rectangle._yScale = yScale;
@@ -242,7 +243,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         var y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
         var width = end - x;
         var height = me.calculateBarHeight(ruler);
-        var color = me.chart.options.colorFunction(text, data);
+        var color = me.chart.options.colorFunction(text, data, dataset, index);
         var showText = me.chart.options.showText;
 
         var font = me.chart.options.elements.font;
@@ -260,7 +261,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         rectangle._model = {
             x: reset ?  x - width : x,   // Top left of rectangle
             y: boxY , // Top left of rectangle
-            width: width > 1 ? width : 1,
+            width: Math.max(width, minBarWidth),
             height: height,
             base: x + width,
             backgroundColor: color.rgbaString(),
@@ -279,6 +280,8 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
             var vm = this._view;
             var oldAlpha = ctx.globalAlpha;
             var oldOperation = ctx.globalCompositeOperation;
+
+            // Draw new rectangle with Alpha-Mix.
             ctx.fillStyle = vm.backgroundColor;
             ctx.lineWidth = vm.borderWidth;
             ctx.globalCompositeOperation = 'destination-over';
@@ -394,10 +397,9 @@ Chart.defaults.timeline = {
     colorFunction: function() {
         return Color('black');
     },
-
     showText: true,
-
     textPadding: 4,
+    minBarWidth: 1,
 
     layout: {
         padding: {
