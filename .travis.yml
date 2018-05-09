@@ -1,0 +1,12 @@
+language: node_js
+script:
+- echo "skipping tests"
+deploy:
+  provider: npm
+  email: cby@cby.me
+  api_key:
+    secure: nlnxEE4TxbZR4jUVvMxIFTwjD8nRNTpkolcJ5DUuZW8Jvc8ov7khgqEr7+is9WjnuDAY1J2QAVyUBP1A0E42m+6BQGrqDiAXBF0DUFKKmWPiG/sQuhEZjo43W+tqgzfAPWBn/JBU9Ky9rkgQJQ1JOcDfL++Uqt8H0sHzebTV4Bk/WnW4rkwc0XiGcOnUNtgHb9DAjR0DcamFalOmYR/Xey1diWg53REiOloFrmFab/X+Utqt1C0a5p3juaOqY9j9bv7oOZ6UVpzcKX2xt8a/OJsrbnbdKK94CWxmhUEPbXyE3KJs9b/eYYOigS/X1kgm2zbNcG7fWVaAivcohJzYQxTu6UuOy6rk4qJVYuAC1z6LqpznzwAxu5M6KYgYnTTtK0VeswRn6T8LbnWjLp59vwNrpMi3FBQ3aRs3bu3z5z0SH5TeSvJOQz5y4ZzUrbScsmi0gbHWsYzoPNQ3AjLBKMZpdtqC00WgzC9uezVNFhbCcITB0lM68Ivu4dFmB23B7G9F7JdphJ4FIdqXL3Pd7iyq5ZUkdTD8FHw9r1SOWdKl69RY+F5xiA6IRTn07PrBOPnlZsEN0WsA54ytCOwP0e2LdU5QrYzdcSgQIFdpybQZ2h6eSjMHz2wr+9KT2q3+39T7tpZNqslzNLAHxM4RHOqdCu2KTdM5H+USLmr/DkU=
+  on:
+    tags: true
+    repo: fanthos/chartjs-chart-timeline
+  skip_cleanup: true
