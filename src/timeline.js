@@ -4,7 +4,7 @@ import moment from 'moment'
 const helpers = Chart.helpers;
 const isArray = helpers.isArray;
 
-let TimelineConfig = {
+var TimelineConfig = {
     position: 'bottom',
 
     tooltips: {
@@ -45,8 +45,8 @@ let TimelineConfig = {
  * @see http://momentjs.com/docs/#/parsing/
  */
 function momentify(value, options) {
-	let parser = options.parser;
-	let format = options.parser || options.format;
+	var parser = options.parser;
+	var format = options.parser || options.format;
 
 	if (typeof parser === 'function') {
 		return parser(value);
@@ -78,8 +78,8 @@ function parse(input, scale) {
 		return null;
 	}
 
-	let options = scale.options.time;
-	let value = momentify(scale.getRightValue(input), options);
+	var options = scale.options.time;
+	var value = momentify(scale.getRightValue(input), options);
 	if (!value.isValid()) {
 		return null;
 	}
@@ -92,9 +92,9 @@ function parse(input, scale) {
 }
 
 function arrayUnique(items) {
-	let hash = {};
-	let out = [];
-	let i, ilen, item;
+	var hash = {};
+	var out = [];
+	var i, ilen, item;
 
 	for (i = 0, ilen = items.length; i < ilen; ++i) {
 		item = items[i];
@@ -107,21 +107,21 @@ function arrayUnique(items) {
 	return out;
 }
 
-let MIN_INTEGER = Number.MIN_SAFE_INTEGER || -9007199254740991;
-let MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
+var MIN_INTEGER = Number.MIN_SAFE_INTEGER || -9007199254740991;
+var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
 
-let TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
+var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
 
     determineDataLimits: function() {
-        let me = this;
-        let chart = me.chart;
-        let timeOpts = me.options.time;
-        let min = MAX_INTEGER;
-        let max = MIN_INTEGER;
-        let timestamps = [];
-        let timestampobj = {};
-        let datasets = [];
-        let i, j, ilen, jlen, data, timestamp0, timestamp1;
+        var me = this;
+        var chart = me.chart;
+        var timeOpts = me.options.time;
+        var min = MAX_INTEGER;
+        var max = MIN_INTEGER;
+        var timestamps = [];
+        var timestampobj = {};
+        var datasets = [];
+        var i, j, ilen, jlen, data, timestamp0, timestamp1;
 
 
         // Convert data to timestamps
@@ -158,13 +158,15 @@ let TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
         }
 
         if (timestamps.size) {
-            timestamps.sort((a, b) => a - b);
+            timestamps.sort(function (a, b){
+                return a - b;
+            });
         }
 
         min = parse(timeOpts.min, me) || min;
         max = parse(timeOpts.max, me) || max;
 
-        // In case there is no valid min/max, let's use today limits
+        // In case there is no valid min/max, var's use today limits
         min = min === MAX_INTEGER ? +moment().startOf('day') : min;
         max = max === MIN_INTEGER ? +moment().endOf('day') + 1 : max;
 
@@ -188,8 +190,8 @@ Chart.scaleService.registerScaleType('timeline', TimelineScale, TimelineConfig);
 Chart.controllers.timeline = Chart.controllers.bar.extend({
 
     getBarBounds : function (bar) {
-        let vm =   bar._view;
-        let x1, x2, y1, y2;
+        var vm =   bar._view;
+        var x1, x2, y1, y2;
 
         x1 = vm.x;
         x2 = vm.x + vm.width;
@@ -206,45 +208,45 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
     },
 
     update: function(reset) {
-        let me = this;
-        let meta = me.getMeta();
+        var me = this;
+        var meta = me.getMeta();
         helpers.each(meta.data, function(rectangle, index) {
             me.updateElement(rectangle, index, reset);
         }, me);
     },
 
     updateElement: function(rectangle, index, reset) {
-        let me = this;
-        let meta = me.getMeta();
-        let xScale = me.getScaleForId(meta.xAxisID);
-        let yScale = me.getScaleForId(meta.yAxisID);
-        let dataset = me.getDataset();
-        let data = dataset.data[index];
-        let custom = rectangle.custom || {};
-        let datasetIndex = me.index;
-        let rectangleElementOptions = me.chart.options.elements.rectangle;
-        let textPad = me.chart.options.textPadding;
-        let minBarWidth = me.chart.options.minBarWidth;
+        var me = this;
+        var meta = me.getMeta();
+        var xScale = me.getScaleForId(meta.xAxisID);
+        var yScale = me.getScaleForId(meta.yAxisID);
+        var dataset = me.getDataset();
+        var data = dataset.data[index];
+        var custom = rectangle.custom || {};
+        var datasetIndex = me.index;
+        var rectangleElementOptions = me.chart.options.elements.rectangle;
+        var textPad = me.chart.options.textPadding;
+        var minBarWidth = me.chart.options.minBarWidth;
 
         rectangle._xScale = xScale;
         rectangle._yScale = yScale;
         rectangle._datasetIndex = me.index;
         rectangle._index = index;
 
-        let text = data[2];
+        var text = data[2];
 
-        let ruler = me.getRuler(index);
+        var ruler = me.getRuler(index);
 
-        let x = xScale.getPixelForValue(data[0]);
-        let end = xScale.getPixelForValue(data[1]);
+        var x = xScale.getPixelForValue(data[0]);
+        var end = xScale.getPixelForValue(data[1]);
 
-        let y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
-        let width = end - x;
-        let height = me.calculateBarHeight(ruler);
-        let color = me.chart.options.colorFunction(text, data, dataset, index);
-        let showText = me.chart.options.showText;
+        var y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
+        var width = end - x;
+        var height = me.calculateBarHeight(ruler);
+        var color = me.chart.options.colorFunction(text, data, dataset, index);
+        var showText = me.chart.options.showText;
 
-        let font = me.chart.options.elements.font;
+        var font = me.chart.options.elements.font;
 
         if (!font) {
             font = '12px bold Arial';
@@ -254,7 +256,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         // divide both of them by two and subtract the height part and add the tick part
         // to the real position of the element y. The purpose here is to place the bar
         // in the middle of the tick.
-        let boxY = y - (height / 2);
+        var boxY = y - (height / 2);
 
         rectangle._model = {
             x: reset ?  x - width : x,   // Top left of rectangle
@@ -274,10 +276,10 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         };
 
         rectangle.draw = function() {
-            let ctx = this._chart.ctx;
-            let vm = this._view;
-            let oldAlpha = ctx.globalAlpha;
-            let oldOperation = ctx.globalCompositeOperation;
+            var ctx = this._chart.ctx;
+            var vm = this._view;
+            var oldAlpha = ctx.globalAlpha;
+            var oldOperation = ctx.globalCompositeOperation;
 
             // Draw new rectangle with Alpha-Mix.
             ctx.fillStyle = vm.backgroundColor;
@@ -293,7 +295,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
             ctx.globalCompositeOperation = oldOperation;
             if (showText) {
                 ctx.beginPath();
-                let textRect = ctx.measureText(vm.text);
+                var textRect = ctx.measureText(vm.text);
                 if (textRect.width > 0 && textRect.width + textPad + 2 < vm.width) {
                     ctx.font = font;
                     ctx.fillStyle = vm.textColor;
@@ -307,11 +309,11 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         };
 
         rectangle.inXRange = function (mouseX) {
-            let bounds = me.getBarBounds(this);
+            var bounds = me.getBarBounds(this);
             return mouseX >= bounds.left && mouseX <= bounds.right;
         };
         rectangle.tooltipPosition = function () {
-            let vm = this.getCenterPoint();
+            var vm = this.getCenterPoint();
             return {
                 x: vm.x ,
                 y: vm.y
@@ -319,8 +321,8 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         };
 
         rectangle.getCenterPoint = function () {
-            let vm = this._view;
-            let x, y;
+            var vm = this._view;
+            var x, y;
             x = vm.x + (vm.width / 2);
             y = vm.y + (vm.height / 2);
 
@@ -331,11 +333,11 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         };
 
         rectangle.inRange = function (mouseX, mouseY) {
-            let inRange = false;
+            var inRange = false;
 
             if(this._view)
             {
-                let bounds = me.getBarBounds(this);
+                var bounds = me.getBarBounds(this);
                 inRange = mouseX >= bounds.left && mouseX <= bounds.right &&
                     mouseY >= bounds.top && mouseY <= bounds.bottom;
             }
@@ -346,10 +348,10 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
     },
 
     getBarCount: function() {
-        let me = this;
-        let barCount = 0;
+        var me = this;
+        var barCount = 0;
         helpers.each(me.chart.data.datasets, function(dataset, datasetIndex) {
-            let meta = me.chart.getDatasetMeta(datasetIndex);
+            var meta = me.chart.getDatasetMeta(datasetIndex);
             if (meta.bar && me.chart.isDatasetVisible(datasetIndex)) {
                 ++barCount;
             }
@@ -360,9 +362,9 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 
     // draw
     draw: function (ease) {
-        let easingDecimal = ease || 1;
-        let i, len;
-        let metaData = this.getMeta().data;
+        var easingDecimal = ease || 1;
+        var i, len;
+        var metaData = this.getMeta().data;
         for (i = 0, len = metaData.length; i < len; i++)
         {
             metaData[i].transition(easingDecimal).draw();
@@ -371,8 +373,8 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 
     // From controller.bar
     calculateBarHeight: function(ruler) {
-        let me = this;
-        let yScale = me.getScaleForId(me.getMeta().yAxisID);
+        var me = this;
+        var yScale = me.getScaleForId(me.getMeta().yAxisID);
         if (yScale.options.barThickness) {
             return yScale.options.barThickness;
         }
@@ -449,11 +451,11 @@ Chart.defaults.timeline = {
     tooltips: {
         callbacks: {
             title: function(tooltipItems, data) {
-                let d = data.labels[tooltipItems[0].datasetIndex]
+                var d = data.labels[tooltipItems[0].datasetIndex]
                 return d;
             },
             label: function(tooltipItem, data) {
-                let d = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                var d = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
                 return [d[2], moment(d[0]).format('L LTS'), moment(d[1]).format('L LTS')];
             }
         }
