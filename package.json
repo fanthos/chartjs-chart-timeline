@@ -2,13 +2,24 @@
   "name": "chartjs-chart-timeline",
   "version": "0.1.5",
   "description": "timeline chart type for chart.js",
-  "main": "timeline.js",
+  "main": "src/timeline.js",
+  "browser": "timeline.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rollup -c",
+    "dev": "rollup -c -w"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fanthos/chartjs-chart-timeline.git"
+  },
+  "dependencies": {
+    "moment": "^2.22.0",
+    "chart.js": "^2.7.2"
+  },
+  "devDependencies": {
+    "rollup": "^0.58.0",
+    "rollup-plugin-commonjs": "^9.1.0",
+    "rollup-plugin-node-resolve": "^3.0.0"
   },
   "keywords": [
     "chartjs",
