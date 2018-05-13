@@ -1,4 +1,6 @@
-(function () {
+import Chart from 'chart.js'
+import moment from 'moment'
+
 const helpers = Chart.helpers;
 const isArray = helpers.isArray;
 
@@ -16,8 +18,8 @@ var TimelineConfig = {
         displayFormat: false, // DEPRECATED
         isoWeekday: false, // override week start day - see http://momentjs.com/docs/#/get-set/iso-weekday/
         minUnit: 'millisecond',
-		distribution: 'linear',
-		bounds: 'data',
+        distribution: 'linear',
+        bounds: 'data',
 
         // defaults to unit's corresponding unitFormat below or override using pattern string from http://momentjs.com/docs/#/displaying/format/
         displayFormats: {
@@ -43,70 +45,66 @@ var TimelineConfig = {
  * @see http://momentjs.com/docs/#/parsing/
  */
 function momentify(value, options) {
-	var parser = options.parser;
-	var format = options.parser || options.format;
+    var parser = options.parser;
+    var format = options.parser || options.format;
 
-	if (typeof parser === 'function') {
-		return parser(value);
-	}
+    if (typeof parser === 'function') {
+        return parser(value);
+    }
 
-	if (typeof value === 'string' && typeof format === 'string') {
-		return moment(value, format);
-	}
+    if (typeof value === 'string' && typeof format === 'string') {
+        return moment(value, format);
+    }
 
-	if (!(value instanceof moment)) {
-		value = moment(value);
-	}
+    if (!(value instanceof moment)) {
+        value = moment(value);
+    }
 
-	if (value.isValid()) {
-		return value;
-	}
+    if (value.isValid()) {
+        return value;
+    }
 
-	// Labels are in an incompatible moment format and no `parser` has been provided.
-	// The user might still use the deprecated `format` option to convert his inputs.
-	if (typeof format === 'function') {
-		return format(value);
-	}
+    // Labels are in an incompatible moment format and no `parser` has been provided.
+    // The user might still use the deprecated `format` option to convert his inputs.
+    if (typeof format === 'function') {
+        return format(value);
+    }
 
-	return value;
+    return value;
 }
 
 function parse(input, scale) {
-	if (helpers.isNullOrUndef(input)) {
-		return null;
-	}
+    if (helpers.isNullOrUndef(input)) {
+        return null;
+    }
 
-	var options = scale.options.time;
-	var value = momentify(scale.getRightValue(input), options);
-	if (!value.isValid()) {
-		return null;
-	}
+    var options = scale.options.time;
+    var value = momentify(scale.getRightValue(input), options);
+    if (!value.isValid()) {
+        return null;
+    }
 
-	if (options.round) {
-		value.startOf(options.round);
-	}
+    if (options.round) {
+        value.startOf(options.round);
+    }
 
-	return value.valueOf();
+    return value.valueOf();
 }
 
 function arrayUnique(items) {
-	var hash = {};
-	var out = [];
-	var i, ilen, item;
+    var hash = {};
+    var out = [];
+    var i, ilen, item;
 
-	for (i = 0, ilen = items.length; i < ilen; ++i) {
-		item = items[i];
-		if (!hash[item]) {
-			hash[item] = true;
-			out.push(item);
-		}
-	}
+    for (i = 0, ilen = items.length; i < ilen; ++i) {
+        item = items[i];
+        if (!hash[item]) {
+            hash[item] = true;
+            out.push(item);
+        }
+    }
 
-	return out;
-}
-
-function sorter(a, b) {
-	return a - b;
+    return out;
 }
 
 var MIN_INTEGER = Number.MIN_SAFE_INTEGER || -9007199254740991;
@@ -158,15 +156,17 @@ var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
                 datasets[i] = [];
             }
         }
-        
+
         if (timestamps.size) {
-            timestamps.sort(sorter);
+            timestamps.sort(function (a, b){
+                return a - b;
+            });
         }
 
         min = parse(timeOpts.min, me) || min;
         max = parse(timeOpts.max, me) || max;
 
-        // In case there is no valid min/max, let's use today limits
+        // In case there is no valid min/max, var's use today limits
         min = min === MAX_INTEGER ? +moment().startOf('day') : min;
         max = max === MIN_INTEGER ? +moment().endOf('day') + 1 : max;
 
@@ -210,6 +210,20 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
     update: function(reset) {
         var me = this;
         var meta = me.getMeta();
+        var chartOpts = me.chart.options;
+        if (chartOpts.textPadding || chartOpts.minBarWidth ||
+                chartOpts.showText || chartOpts.colorFunction) {
+            var elemOpts = me.chart.options.elements;
+            elemOpts.textPadding = chartOpts.textPadding || elemOpts.textPadding;
+            elemOpts.minBarWidth = chartOpts.minBarWidth || elemOpts.minBarWidth;
+            elemOpts.colorFunction = chartOpts.colorFunction || elemOpts.colorFunction;
+            elemOpts.minBarWidth = chartOpts.minBarWidth || elemOpts.minBarWidth;
+            if (Chart._tl_depwarn !== true) {
+                console.log('Configuration deprecated. Please check updated document on Github.');
+                Chart._tl_depwarn = true;
+            }
+        }
+
         helpers.each(meta.data, function(rectangle, index) {
             me.updateElement(rectangle, index, reset);
         }, me);
@@ -224,9 +238,11 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         var data = dataset.data[index];
         var custom = rectangle.custom || {};
         var datasetIndex = me.index;
-        var rectangleElementOptions = me.chart.options.elements.rectangle;
-        var textPad = me.chart.options.textPadding;
-        var minBarWidth = me.chart.options.minBarWidth;
+        var opts = me.chart.options;
+        var elemOpts = opts.elements || {};
+        var rectangleElementOptions = elemOpts.rectangle;
+        var textPad = elemOpts.textPadding;
+        var minBarWidth = elemOpts.minBarWidth;
 
         rectangle._xScale = xScale;
         rectangle._yScale = yScale;
@@ -243,10 +259,10 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         var y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
         var width = end - x;
         var height = me.calculateBarHeight(ruler);
-        var color = me.chart.options.colorFunction(text, data, dataset, index);
-        var showText = me.chart.options.showText;
+        var color = elemOpts.colorFunction(text, data, dataset, index);
+        var showText = elemOpts.showText;
 
-        var font = me.chart.options.elements.font;
+        var font = elemOpts.font;
 
         if (!font) {
             font = '12px bold Arial';
@@ -393,13 +409,14 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 
 
 Chart.defaults.timeline = {
-
-    colorFunction: function() {
-        return Color('black');
+    elements: {
+        colorFunction: function() {
+            return Color('black');
+        },
+        showText: true,
+        textPadding: 4,
+        minBarWidth: 1
     },
-    showText: true,
-    textPadding: 4,
-    minBarWidth: 1,
 
     layout: {
         padding: {
@@ -419,8 +436,8 @@ Chart.defaults.timeline = {
             type: 'timeline',
             position: 'bottom',
             distribution: 'linear',
-			categoryPercentage: 0.8,
-			barPercentage: 0.9,
+            categoryPercentage: 0.8,
+            barPercentage: 0.9,
 
             gridLines: {
                 display: true,
@@ -437,7 +454,7 @@ Chart.defaults.timeline = {
             type: 'category',
             position: 'left',
             barThickness : 20,
-			categoryPercentage: 0.8,
+            categoryPercentage: 0.8,
             barPercentage: 0.9,
             offset: true,
             gridLines: {
@@ -461,4 +478,3 @@ Chart.defaults.timeline = {
         }
     }
 };
-})();
