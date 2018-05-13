@@ -210,6 +210,20 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
     update: function(reset) {
         var me = this;
         var meta = me.getMeta();
+        var chartOpts = me.chart.options;
+        if (chartOpts.textPadding || chartOpts.minBarWidth ||
+                chartOpts.showText || chartOpts.colorFunction) {
+            var elemOpts = me.chart.options.elements;
+            elemOpts.textPadding = chartOpts.textPadding || elemOpts.textPadding;
+            elemOpts.minBarWidth = chartOpts.minBarWidth || elemOpts.minBarWidth;
+            elemOpts.colorFunction = chartOpts.colorFunction || elemOpts.colorFunction;
+            elemOpts.minBarWidth = chartOpts.minBarWidth || elemOpts.minBarWidth;
+            if (Chart._tl_depwarn !== true) {
+                console.log('Configuration deprecated. Please check updated document on Github.');
+                Chart._tl_depwarn = true;
+            }
+        }
+
         helpers.each(meta.data, function(rectangle, index) {
             me.updateElement(rectangle, index, reset);
         }, me);
@@ -224,9 +238,11 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         var data = dataset.data[index];
         var custom = rectangle.custom || {};
         var datasetIndex = me.index;
-        var rectangleElementOptions = me.chart.options.elements.rectangle;
-        var textPad = me.chart.options.textPadding;
-        var minBarWidth = me.chart.options.minBarWidth;
+        var opts = me.chart.options;
+        var elemOpts = opts.elements || {};
+        var rectangleElementOptions = elemOpts.rectangle;
+        var textPad = elemOpts.textPadding;
+        var minBarWidth = elemOpts.minBarWidth;
 
         rectangle._xScale = xScale;
         rectangle._yScale = yScale;
@@ -243,10 +259,10 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         var y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
         var width = end - x;
         var height = me.calculateBarHeight(ruler);
-        var color = me.chart.options.colorFunction(text, data, dataset, index);
-        var showText = me.chart.options.showText;
+        var color = elemOpts.colorFunction(text, data, dataset, index);
+        var showText = elemOpts.showText;
 
-        var font = me.chart.options.elements.font;
+        var font = elemOpts.font;
 
         if (!font) {
             font = '12px bold Arial';
@@ -393,13 +409,14 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 
 
 Chart.defaults.timeline = {
-
-    colorFunction: function() {
-        return Color('black');
+    elements: {
+        colorFunction: function() {
+            return Color('black');
+        },
+        showText: true,
+        textPadding: 4,
+        minBarWidth: 1
     },
-    showText: true,
-    textPadding: 4,
-    minBarWidth: 1,
 
     layout: {
         padding: {

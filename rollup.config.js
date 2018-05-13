@@ -7,13 +7,13 @@ export default [
 	{
 		input: 'src/timeline.js',
         external: ['chart.js', 'moment'],
-        globals: {
-            'chart.js': 'Chart',
-            'moment': 'moment'
-        },
 		output: {
 			file: pkg.browser,
-			format: 'umd'
+			format: 'umd',
+            globals: {
+                'chart.js': 'Chart',
+                'moment': 'moment'
+            }
 		},
 		plugins: [
 			resolve(), // so Rollup can find `ms`

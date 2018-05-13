@@ -4,11 +4,19 @@ Timeline chart library for Chart.js.
 ```javascript
 "type": "timeline",
 "options": {
-    "colorFunction": function(text, data, dataset, index) {
-        return Color('black');
-    },
-    "showText": true,
-    "textPadding": 4,
+    // Depricated and will be removed in future. Please use elements.* instead.
+    // "colorFunction": function(text, data, dataset, index) {
+    //     return Color('black');
+    // },
+    // "showText": true,
+    // "textPadding": 4
+    "elements": {
+        "colorFunction": function(text, data, dataset, index) {
+            return Color('black');
+        },
+        "showText": true,
+        "textPadding": 4
+    }
 },
 "data": {
     "labels": [
