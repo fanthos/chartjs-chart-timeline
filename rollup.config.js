@@ -6,9 +6,12 @@ export default [
 	// browser-friendly UMD build
 	{
 		input: 'src/timeline.js',
-		external: ['chart.js'],
+        external: ['chart.js', 'moment'],
+        globals: {
+            'chart.js': 'Chart',
+            'moment': 'moment'
+        },
 		output: {
-			name: 'howLongUntilLunch',
 			file: pkg.browser,
 			format: 'umd'
 		},
@@ -17,19 +20,4 @@ export default [
 			commonjs() // so Rollup can convert `ms` to an ES module
 		]
 	},
-
-	// CommonJS (for Node) and ES module (for bundlers) build.
-	// (We could have three entries in the configuration array
-	// instead of two, but it's quicker to generate multiple
-	// builds from a single configuration where possible, using
-	// an array for the `output` option, where we can specify 
-	// `file` and `format` for each target)
-	{
-		input: 'src/timeline.js',
-		external: ['chart.js'],
-		output: [
-			{ file: pkg.main, format: 'cjs' },
-			{ file: pkg.module, format: 'es' }
-		]
-	}
 ];
