@@ -1,6 +1,8 @@
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import pkg from './package.json';
+import uglify from 'rollup-plugin-uglify';
+
 
 export default [
     // browser-friendly UMD build
@@ -8,7 +10,7 @@ export default [
         input: 'src/timeline.js',
         external: ['chart.js', 'moment'],
         output: {
-            file: pkg.browser,
+            file: 'timeline.js',
             format: 'umd',
             globals: {
                 'chart.js': 'Chart',
@@ -16,8 +18,25 @@ export default [
             }
         },
         plugins: [
-            resolve(), // so Rollup can find `ms`
-            commonjs() // so Rollup can convert `ms` to an ES module
+            resolve(),
+            commonjs()
         ]
     },
+    {
+        input: 'src/timeline.js',
+        external: ['chart.js', 'moment'],
+        output: {
+            file: 'timeline.min.js',
+            format: 'umd',
+            globals: {
+                'chart.js': 'Chart',
+                'moment': 'moment'
+            }
+        },
+        plugins: [
+            resolve(),
+            commonjs(),
+            uglify()
+        ]
+    }
 ];

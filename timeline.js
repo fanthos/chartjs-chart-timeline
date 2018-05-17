@@ -24,8 +24,8 @@
             displayFormat: false, // DEPRECATED
             isoWeekday: false, // override week start day - see http://momentjs.com/docs/#/get-set/iso-weekday/
             minUnit: 'millisecond',
-    		distribution: 'linear',
-    		bounds: 'data',
+            distribution: 'linear',
+            bounds: 'data',
 
             // defaults to unit's corresponding unitFormat below or override using pattern string from http://momentjs.com/docs/#/displaying/format/
             displayFormats: {
@@ -51,50 +51,50 @@
      * @see http://momentjs.com/docs/#/parsing/
      */
     function momentify(value, options) {
-    	var parser = options.parser;
-    	var format = options.parser || options.format;
+        var parser = options.parser;
+        var format = options.parser || options.format;
 
-    	if (typeof parser === 'function') {
-    		return parser(value);
-    	}
+        if (typeof parser === 'function') {
+            return parser(value);
+        }
 
-    	if (typeof value === 'string' && typeof format === 'string') {
-    		return moment(value, format);
-    	}
+        if (typeof value === 'string' && typeof format === 'string') {
+            return moment(value, format);
+        }
 
-    	if (!(value instanceof moment)) {
-    		value = moment(value);
-    	}
+        if (!(value instanceof moment)) {
+            value = moment(value);
+        }
 
-    	if (value.isValid()) {
-    		return value;
-    	}
+        if (value.isValid()) {
+            return value;
+        }
 
-    	// Labels are in an incompatible moment format and no `parser` has been provided.
-    	// The user might still use the deprecated `format` option to convert his inputs.
-    	if (typeof format === 'function') {
-    		return format(value);
-    	}
+        // Labels are in an incompatible moment format and no `parser` has been provided.
+        // The user might still use the deprecated `format` option to convert his inputs.
+        if (typeof format === 'function') {
+            return format(value);
+        }
 
-    	return value;
+        return value;
     }
 
     function parse(input, scale) {
-    	if (helpers.isNullOrUndef(input)) {
-    		return null;
-    	}
+        if (helpers.isNullOrUndef(input)) {
+            return null;
+        }
 
-    	var options = scale.options.time;
-    	var value = momentify(scale.getRightValue(input), options);
-    	if (!value.isValid()) {
-    		return null;
-    	}
+        var options = scale.options.time;
+        var value = momentify(scale.getRightValue(input), options);
+        if (!value.isValid()) {
+            return null;
+        }
 
-    	if (options.round) {
-    		value.startOf(options.round);
-    	}
+        if (options.round) {
+            value.startOf(options.round);
+        }
 
-    	return value.valueOf();
+        return value.valueOf();
     }
 
     var MIN_INTEGER = Number.MIN_SAFE_INTEGER || -9007199254740991;
@@ -202,14 +202,17 @@
             var meta = me.getMeta();
             var chartOpts = me.chart.options;
             if (chartOpts.textPadding || chartOpts.minBarWidth ||
-                chartOpts.showText || chartOpts.colorFunction) {
-                    var elemOpts = me.chart.options.elements;
-                    elemOpts.textPadding = chartOpts.textPadding || elemOpts.textPadding;
-                    elemOpts.minBarWidth = chartOpts.minBarWidth || elemOpts.minBarWidth;
-                    elemOpts.colorFunction = chartOpts.colorFunction || elemOpts.colorFunction;
-                    elemOpts.minBarWidth = chartOpts.minBarWidth || elemOpts.minBarWidth;
-                    console.log('Configuration deprecated. Please check updated document on Github.');
+                    chartOpts.showText || chartOpts.colorFunction) {
+                var elemOpts = me.chart.options.elements;
+                elemOpts.textPadding = chartOpts.textPadding || elemOpts.textPadding;
+                elemOpts.minBarWidth = chartOpts.minBarWidth || elemOpts.minBarWidth;
+                elemOpts.colorFunction = chartOpts.colorFunction || elemOpts.colorFunction;
+                elemOpts.minBarWidth = chartOpts.minBarWidth || elemOpts.minBarWidth;
+                if (Chart._tl_depwarn !== true) {
+                    console.log('Timeline Chart: Configuration deprecated. Please check document on Github.');
+                    Chart._tl_depwarn = true;
                 }
+            }
 
             helpers.each(meta.data, function(rectangle, index) {
                 me.updateElement(rectangle, index, reset);
@@ -423,8 +426,8 @@
                 type: 'timeline',
                 position: 'bottom',
                 distribution: 'linear',
-    			categoryPercentage: 0.8,
-    			barPercentage: 0.9,
+                categoryPercentage: 0.8,
+                barPercentage: 0.9,
 
                 gridLines: {
                     display: true,
@@ -441,7 +444,7 @@
                 type: 'category',
                 position: 'left',
                 barThickness : 20,
-    			categoryPercentage: 0.8,
+                categoryPercentage: 0.8,
                 barPercentage: 0.9,
                 offset: true,
                 gridLines: {
