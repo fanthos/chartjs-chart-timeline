@@ -219,7 +219,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
             elemOpts.colorFunction = chartOpts.colorFunction || elemOpts.colorFunction;
             elemOpts.minBarWidth = chartOpts.minBarWidth || elemOpts.minBarWidth;
             if (Chart._tl_depwarn !== true) {
-                console.log('Configuration deprecated. Please check updated document on Github.');
+                console.log('Timeline Chart: Configuration deprecated. Please check document on Github.');
                 Chart._tl_depwarn = true;
             }
         }
