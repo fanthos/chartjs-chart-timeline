@@ -1,6 +1,6 @@
 {
   "name": "chartjs-chart-timeline",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "timeline chart type for chart.js",
   "main": "src/timeline.js",
   "scripts": {
@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "moment": "^2.22.0",
-    "chart.js": "^2.7.2"
+    "chart.js": "~2.8.0"
   },
   "devDependencies": {
     "rollup": "^0.58.0",
