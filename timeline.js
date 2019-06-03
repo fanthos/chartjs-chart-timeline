@@ -1,8 +1,8 @@
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('chart.js'), require('moment')) :
     typeof define === 'function' && define.amd ? define(['chart.js', 'moment'], factory) :
-    (factory(global.Chart,global.moment));
-}(this, (function (Chart,moment) { 'use strict';
+    (global = global || self, factory(global.Chart, global.moment));
+}(this, function (Chart, moment) { 'use strict';
 
     Chart = Chart && Chart.hasOwnProperty('default') ? Chart['default'] : Chart;
     moment = moment && moment.hasOwnProperty('default') ? moment['default'] : moment;
@@ -291,8 +291,9 @@
                 // Draw new rectangle with Alpha-Mix.
                 ctx.fillStyle = vm.backgroundColor;
                 ctx.lineWidth = vm.borderWidth;
+                ctx.strokeStyle = vm.backgroundColor;
                 ctx.globalCompositeOperation = 'destination-over';
-                ctx.fillRect(vm.x, vm.y, vm.width, vm.height);
+                ctx.strokeRect(vm.x, vm.y, vm.width, vm.height);
 
                 ctx.globalAlpha = 0.5;
                 ctx.globalCompositeOperation = 'source-over';
@@ -470,4 +471,4 @@
         }
     };
 
-})));
+}));

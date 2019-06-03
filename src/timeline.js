@@ -301,8 +301,9 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
             // Draw new rectangle with Alpha-Mix.
             ctx.fillStyle = vm.backgroundColor;
             ctx.lineWidth = vm.borderWidth;
+            ctx.strokeStyle = vm.backgroundColor;
             ctx.globalCompositeOperation = 'destination-over';
-            ctx.fillRect(vm.x, vm.y, vm.width, vm.height);
+            ctx.strokeRect(vm.x, vm.y, vm.width, vm.height);
 
             ctx.globalAlpha = 0.5;
             ctx.globalCompositeOperation = 'source-over';
