@@ -1,5 +1,6 @@
-import Chart from 'chart.js'
-import moment from 'moment'
+import Chart from 'chart.js';
+import moment from 'moment';
+import Color from '@kurkle/color';
 
 const helpers = Chart.helpers;
 const isArray = helpers.isArray;
@@ -144,11 +145,11 @@ var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
                         max = timestamp1;
                     }
                     datasets[i][j] = [timestamp0, timestamp1, data[j][2]];
-                    if (timestampobj.hasOwnProperty(timestamp0)) {
+                    if (Object.prototype.hasOwnProperty.call(timestampobj, timestamp0)) {
                         timestampobj[timestamp0] = true;
                         timestamps.push(timestamp0);
                     }
-                    if (timestampobj.hasOwnProperty(timestamp1)) {
+                    if (Object.prototype.hasOwnProperty.call(timestampobj, timestamp1)) {
                         timestampobj[timestamp1] = true;
                         timestamps.push(timestamp1);
                     }
