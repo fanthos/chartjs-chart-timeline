@@ -1,6 +1,5 @@
 import Chart from 'chart.js';
 import moment from 'moment';
-import Color from '@kurkle/color';
 
 const helpers = Chart.helpers;
 const isArray = helpers.isArray;
@@ -413,7 +412,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 Chart.defaults.timeline = {
     elements: {
         colorFunction: function() {
-            return Color('black');
+            return Chart.helpers.color('black');
         },
         showText: true,
         textPadding: 4,

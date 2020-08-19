@@ -12,8 +12,7 @@
     "url": "git+https://github.com/fanthos/chartjs-chart-timeline.git"
   },
   "dependencies": {
-    "moment": "^2.22.0",
-    "@kurkle/color": "^0.1.9"
+    "moment": "^2.22.0"
   },
   "peerDependencies": {
     "chart.js": "^2.8.0"
