@@ -4,6 +4,8 @@ import moment from 'moment'
 const helpers = Chart.helpers;
 const isArray = helpers.isArray;
 
+var _color = Chart.helpers.color;
+
 var TimelineConfig = {
     position: 'bottom',
 
@@ -36,7 +38,7 @@ var TimelineConfig = {
         },
     },
     ticks: {
-        autoSkip: false
+        autoSkip: true
     }
 };
 
@@ -117,6 +119,7 @@ var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
         var me = this;
         var chart = me.chart;
         var timeOpts = me.options.time;
+        var elemOpts = me.chart.options.elements;
         var min = MAX_INTEGER;
         var max = MIN_INTEGER;
         var timestamps = [];
@@ -132,8 +135,8 @@ var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
                 datasets[i] = [];
 
                 for (j = 0, jlen = data.length; j < jlen; ++j) {
-                    timestamp0 = parse(data[j][0], me);
-                    timestamp1 = parse(data[j][1], me);
+                    timestamp0 = parse(data[j][elemOpts.keyStart], me);
+                    timestamp1 = parse(data[j][elemOpts.keyEnd], me);
                     if (timestamp0 > timestamp1) {
                         [timestamp0, timestamp1] = [timestamp1, timestamp0];
                     }
@@ -143,12 +146,12 @@ var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
                     if (max < timestamp1 && timestamp1) {
                         max = timestamp1;
                     }
-                    datasets[i][j] = [timestamp0, timestamp1, data[j][2]];
-                    if (timestampobj.hasOwnProperty(timestamp0)) {
+                    datasets[i][j] = [timestamp0, timestamp1, data[j][elemOpts.keyValue]];
+                    if (!timestampobj.hasOwnProperty(timestamp0)) {
                         timestampobj[timestamp0] = true;
                         timestamps.push(timestamp0);
                     }
-                    if (timestampobj.hasOwnProperty(timestamp1)) {
+                    if (!timestampobj.hasOwnProperty(timestamp1)) {
                         timestampobj[timestamp1] = true;
                         timestamps.push(timestamp1);
                     }
@@ -240,7 +243,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         var custom = rectangle.custom || {};
         var datasetIndex = me.index;
         var opts = me.chart.options;
-        var elemOpts = opts.elements || {};
+        var elemOpts = opts.elements || Chart.defaults.timeline.elements;
         var rectangleElementOptions = elemOpts.rectangle;
         var textPad = elemOpts.textPadding;
         var minBarWidth = elemOpts.minBarWidth;
@@ -250,17 +253,17 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         rectangle._datasetIndex = me.index;
         rectangle._index = index;
 
-        var text = data[2];
+        var text = data[elemOpts.keyValue];
 
         var ruler = me.getRuler(index);
 
-        var x = xScale.getPixelForValue(data[0]);
-        var end = xScale.getPixelForValue(data[1]);
+        var x = xScale.getPixelForValue(data[elemOpts.keyStart]);
+        var end = xScale.getPixelForValue(data[elemOpts.keyEnd]);
 
         var y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
         var width = end - x;
         var height = me.calculateBarHeight(ruler);
-        var color = elemOpts.colorFunction(text, data, dataset, index);
+        var color = _color(elemOpts.colorFunction(text, data, dataset, index));
         var showText = elemOpts.showText;
 
         var font = elemOpts.font;
@@ -412,11 +415,14 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 Chart.defaults.timeline = {
     elements: {
         colorFunction: function() {
-            return Color('black');
+            return '#404060';
         },
         showText: true,
         textPadding: 4,
-        minBarWidth: 1
+        minBarWidth: 1,
+        keyStart: 0,
+        keyEnd: 1,
+        keyValue: 2
     },
 
     layout: {
@@ -469,12 +475,14 @@ Chart.defaults.timeline = {
     tooltips: {
         callbacks: {
             title: function(tooltipItems, data) {
+                var elemOpts = this._chart.options.elements;
                 var d = data.labels[tooltipItems[0].datasetIndex]
                 return d;
             },
             label: function(tooltipItem, data) {
+                var elemOpts = this._chart.options.elements;
                 var d = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-                return [d[2], moment(d[0]).format('L LTS'), moment(d[1]).format('L LTS')];
+                return [d[elemOpts.keyValue], moment(d[elemOpts.keyStart]).format('L LTS'), moment(d[elemOpts.keyEnd]).format('L LTS')];
             }
         }
     }

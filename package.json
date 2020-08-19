@@ -1,6 +1,6 @@
 {
   "name": "chartjs-chart-timeline",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "timeline chart type for chart.js",
   "main": "src/timeline.js",
   "scripts": {
@@ -11,10 +11,8 @@
     "type": "git",
     "url": "git+https://github.com/fanthos/chartjs-chart-timeline.git"
   },
-  "dependencies": {
-    "moment": "^2.22.0"
-  },
   "peerDependencies": {
+    "moment": "^2.22.0",
     "chart.js": "^2.8.0"
   },
   "devDependencies": {
