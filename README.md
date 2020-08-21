@@ -15,6 +15,7 @@ import Chart from 'chart.js';
     "elements": {
         "colorFunction": function(text, data, dataset, index) {
             return Chart.helpers.color('black');
+            // return '#black'; supported in 0.4.0
         },
         "showText": true,
         "textPadding": 4
