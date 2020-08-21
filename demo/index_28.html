@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Bar Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/moment/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.js"></script>
+    <script src="../timeline.js"></script>
+
+    <style>
+      canvas {
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="container" style="width: 75%;">
+      <canvas id="canvas"></canvas>
+    </div>
+    <script>
+      var ctx = document.getElementById("canvas").getContext("2d");
+      var chart = new Chart(ctx, {
+        type: "timeline",
+        options: {
+          elements: {
+            colorFunction: function (text, data, dataset, index) {
+              return '#606080';
+            },
+            showText: true,
+            textPadding: 4,
+          },
+        },
+        data: {
+          labels: ["Cool Graph", "heater1"],
+          datasets: [
+            {
+              data: [
+                [
+                  "2018-01-22T16:00:00.000Z",
+                  "2018-01-23T05:40:44.626Z",
+                  "Unknown",
+                ],
+              ],
+            },
+            {
+              data: [
+                ["2018-01-22T16:00:00.000Z", "2018-01-23T04:57:43.736Z", "On"],
+                ["2018-01-23T04:57:43.736Z", "2018-01-23T04:57:55.437Z", "Off"],
+                ["2018-01-23T04:57:55.437Z", "2018-01-23T05:40:44.626Z", "On"],
+              ],
+            },
+          ],
+        },
+      });
+    </script>
+  </body>
+</html>
