@@ -1,5 +1,5 @@
-import Chart from 'chart.js'
-import moment from 'moment'
+import Chart from 'chart.js';
+import moment from 'moment';
 
 const helpers = Chart.helpers;
 const isArray = helpers.isArray;
@@ -147,11 +147,11 @@ var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
                         max = timestamp1;
                     }
                     datasets[i][j] = [timestamp0, timestamp1, data[j][elemOpts.keyValue]];
-                    if (!timestampobj.hasOwnProperty(timestamp0)) {
+                    if (Object.prototype.hasOwnProperty.call(timestampobj, timestamp0)) {
                         timestampobj[timestamp0] = true;
                         timestamps.push(timestamp0);
                     }
-                    if (!timestampobj.hasOwnProperty(timestamp1)) {
+                    if (Object.prototype.hasOwnProperty.call(timestampobj, timestamp1)) {
                         timestampobj[timestamp1] = true;
                         timestamps.push(timestamp1);
                     }
@@ -415,7 +415,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 Chart.defaults.timeline = {
     elements: {
         colorFunction: function() {
-            return '#404060';
+            return _color('black');
         },
         showText: true,
         textPadding: 4,

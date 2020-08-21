@@ -2,17 +2,20 @@
 
 Timeline chart library for Chart.js.
 ```javascript
+import Chart from 'chart.js';
+
 "type": "timeline",
 "options": {
     // Depricated and will be removed in future. Please use elements.* instead.
     // "colorFunction": function(text, data, dataset, index) {
-    //     return Color('black');
+    //     return Chart.helpers.color('black');
     // },
     // "showText": true,
     // "textPadding": 4
     "elements": {
         "colorFunction": function(text, data, dataset, index) {
-            return Color('black');
+            return Chart.helpers.color('black');
+            // return '#black'; supported in 0.4.0
         },
         "showText": true,
         "textPadding": 4
