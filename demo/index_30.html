@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Bar Chart</title>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/moment/moment.min.js"></script> -->
+    <script src="https://unpkg.com/chart.js@3.0.0-beta.6/dist/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@0.1.2/dist/chartjs-adapter-moment.js"></script>
+    <script src="../timeline.js"></script>
+
+    <style>
+      canvas {
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="container" style="width: 75%;">
+      <canvas id="canvas"></canvas>
+    </div>
+    <script>
+      var ctx = document.getElementById("canvas").getContext("2d");
+      var chart = new Chart(ctx, {
+        type: "timeline",
+        options: {
+          elements: {
+            colorFunction: function (text, data, dataset, index) {
+              return '#606080';
+            },
+            showText: true,
+            textPadding: 4,
+            keyStart: 's',
+            keyEnd: 'e',
+            keyValue: 't'
+          },
+        },
+        data: {
+          labels: ["Cool Graph", "heater1"],
+          datasets: [
+            {
+              data: [
+                {
+                  s: "2018-01-22 16:00:00.000",
+                  e: "2018-01-23 05:40:44.626",
+                  t: "Unknown",
+                },
+              ],
+            },
+            {
+              data: [
+                {s: "2018-01-22 16:00:00.000", e: "2018-01-23 04:57:43.736", t: "On"},
+                {s: "2018-01-23 04:57:43.736", e: "2018-01-23 04:57:55.437", t: "Off"},
+                {s: "2018-01-23 04:57:55.437", e: "2018-01-23 05:40:44.626", t: "On"},
+              ],
+            },
+          ],
+        },
+      });
+    </script>
+  </body>
+</html>

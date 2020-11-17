@@ -1,12 +1,238 @@
 import Chart from 'chart.js';
-import moment from 'moment';
+// import moment from 'moment';
+
+function object_assign(target, varArgs) { // .length of function is 2
+    'use strict';
+    if (target === null || target === undefined) {
+        throw new TypeError('Cannot convert undefined or null to object');
+    }
+
+    var to = Object(target);
+
+    for (var index = 1; index < arguments.length; index++) {
+        var nextSource = arguments[index];
+
+        if (nextSource !== null && nextSource !== undefined) {
+            for (var nextKey in nextSource) {
+                // Avoid bugs when hasOwnProperty is shadowed
+                if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+                    to[nextKey] = nextSource[nextKey];
+                }
+            }
+        }
+    }
+    return to;
+}
 
 const helpers = Chart.helpers;
 const isArray = helpers.isArray;
+const registry = Chart.registry;
+const adapter = Chart._adapters._date;
 
 var _color = Chart.helpers.color;
 
-var TimelineConfig = {
+function arrayUnique(items) {
+    var hash = {};
+    var out = [];
+    var i, ilen, item;
+
+    for (i = 0, ilen = items.length; i < ilen; ++i) {
+        item = items[i];
+        if (!hash[item]) {
+            hash[item] = true;
+            out.push(item);
+        }
+    }
+
+    return out;
+}
+
+var MIN_INTEGER = Number.MIN_SAFE_INTEGER || -9007199254740991;
+var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
+
+function color_luminosity(c) {
+    var v = c._rgb
+    return (v.r * 0.3 + v.g * 0.59 + v.b * 0.11) / 256
+}
+
+function BarWithTextElement() {
+    Chart.BarElement.apply(this, arguments);
+}
+
+BarWithTextElement.prototype = object_assign(Object.create(Chart.BarElement.prototype), {
+    
+//     rectangle._model = {
+//         x: reset ?  x - width : x,   // Top left of rectangle
+//         y: boxY , // Top left of rectangle
+//         width: Math.max(width, minBarWidth),
+//         height: height,
+//         base: x + width,
+//         backgroundColor: color.hexString(),
+//         borderSkipped: custom.borderSkipped ? custom.borderSkipped : rectangleElementOptions.borderSkipped,
+//         borderColor: custom.borderColor ? custom.borderColor : helpers.resolve(dataset.borderColor || [], undefined, index) || rectangleElementOptions.borderColor,
+//         borderWidth: custom.borderWidth ? custom.borderWidth : helpers.resolve(dataset.borderWidth || [], undefined, index) || rectangleElementOptions.borderWidth,
+//         // Tooltip
+//         label: me.chart.data.labels[index],
+//         datasetLabel: dataset.label,
+//         text: text,
+//         textColor: color_luminosity(color) > 0.5 ? '#000000' : '#ffffff',
+//     };
+
+//     rectangle.draw = function() {
+//         var ctx = this._chart.ctx;
+//         var vm = this._view;
+//         var oldAlpha = ctx.globalAlpha;
+//         var oldOperation = ctx.globalCompositeOperation;
+
+//         // Draw new rectangle with Alpha-Mix.
+//         ctx.fillStyle = vm.backgroundColor;
+//         ctx.lineWidth = vm.borderWidth;
+//         ctx.globalCompositeOperation = 'destination-over';
+//         ctx.fillRect(vm.x, vm.y, vm.width, vm.height);
+
+//         ctx.globalAlpha = 0.5;
+//         ctx.globalCompositeOperation = 'source-over';
+//         ctx.fillRect(vm.x, vm.y, vm.width, vm.height);
+
+//         ctx.globalAlpha = oldAlpha;
+//         ctx.globalCompositeOperation = oldOperation;
+//         if (showText) {
+//             ctx.beginPath();
+//             var textRect = ctx.measureText(vm.text);
+//             if (textRect.width > 0 && textRect.width + textPad + 2 < vm.width) {
+//                 ctx.font = font;
+//                 ctx.fillStyle = vm.textColor;
+//                 ctx.lineWidth = 0;
+//                 ctx.strokeStyle = vm.textColor;
+//                 ctx.textBaseline = 'middle';
+//                 ctx.fillText(vm.text, vm.x + textPad, vm.y + (vm.height) / 2);
+//             }
+//             ctx.fill();
+//         }
+//     };
+
+//     rectangle.inXRange = function (mouseX) {
+//         var bounds = me.getBarBounds(this);
+//         return mouseX >= bounds.left && mouseX <= bounds.right;
+//     };
+//     rectangle.tooltipPosition = function () {
+//         var vm = this.getCenterPoint();
+//         return {
+//             x: vm.x ,
+//             y: vm.y
+//         };
+//     };
+
+//     rectangle.getCenterPoint = function () {
+//         var vm = this._view;
+//         var x, y;
+//         x = vm.x + (vm.width / 2);
+//         y = vm.y + (vm.height / 2);
+
+//         return {
+//             x : x,
+//             y : y
+//         };
+//     };
+
+//     rectangle.inRange = function (mouseX, mouseY) {
+//         var inRange = false;
+
+//         if(this._view)
+//         {
+//             var bounds = me.getBarBounds(this);
+//             inRange = mouseX >= bounds.left && mouseX <= bounds.right &&
+//                 mouseY >= bounds.top && mouseY <= bounds.bottom;
+//         }
+//         return inRange;
+//     };
+
+//     rectangle.pivot();
+// }
+});
+
+function TimelineScale() {
+    Chart.TimeScale.apply(this, arguments);
+}
+
+TimelineScale.prototype = object_assign(Object.create(Chart.TimeScale.prototype), {
+    determineDataLimits() {
+        var me = this;
+        var chart = me.chart;
+        var timeOpts = me.options.time;
+        var elemOpts = me.chart.options.elements;
+        var min = MAX_INTEGER;
+        var max = MIN_INTEGER;
+        var timestamps = [];
+        var timestampobj = {};
+        var datasets = [];
+        var i, j, ilen, jlen, data, timestamp0, timestamp1;
+        const adapter = this._adapter;
+
+
+        // Convert data to timestamps
+        for (i = 0, ilen = (chart.data.datasets || []).length; i < ilen; ++i) {
+            if (chart.isDatasetVisible(i)) {
+                data = chart.data.datasets[i].data;
+                datasets[i] = [];
+
+                for (j = 0, jlen = data.length; j < jlen; ++j) {
+                    timestamp0 = adapter.parse(data[j][elemOpts.keyStart], me);
+                    timestamp1 = adapter.parse(data[j][elemOpts.keyEnd], me);
+                    if (timestamp0 > timestamp1) {
+                        [timestamp0, timestamp1] = [timestamp1, timestamp0];
+                    }
+                    if (min > timestamp0 && timestamp0) {
+                        min = timestamp0;
+                    }
+                    if (max < timestamp1 && timestamp1) {
+                        max = timestamp1;
+                    }
+                    datasets[i][j] = [timestamp0, timestamp1, data[j][elemOpts.keyValue]];
+                    if (!Object.prototype.hasOwnProperty.call(timestampobj, timestamp0)) {
+                        timestampobj[timestamp0] = true;
+                        timestamps.push(timestamp0);
+                    }
+                    if (!Object.prototype.hasOwnProperty.call(timestampobj, timestamp1)) {
+                        timestampobj[timestamp1] = true;
+                        timestamps.push(timestamp1);
+                    }
+                }
+            } else {
+                datasets[i] = [];
+            }
+        }
+
+        if (timestamps.length) {
+            timestamps.sort(function (a, b){
+                return a - b;
+            });
+        }
+
+        // min = timeOpts.min && adapter.parse(timeOpts.min, me) || min;
+        // max = timeOpts.max && adapter.parse(timeOpts.max, me) || max;
+
+        // In case there is no valid min/max, var's use today limits
+        min = isFinite(min) && !isNaN(min) ? min : +adapter.startOf(Date.now(), unit);
+        max = isFinite(max) && !isNaN(max) ? max : +adapter.endOf(Date.now(), unit) + 1;
+
+        // Make sure that max is strictly higher than min (required by the lookup table)
+        me.min = Math.min(min, max);
+        me.max = Math.max(min + 1, max);
+
+        // PRIVATE
+        me._horizontal = me.isHorizontal();
+        me._table = [];
+        me._timestamps = {
+            data: timestamps,
+            datasets: datasets,
+            labels: []
+        };
+    }
+});
+
+TimelineScale.id = 'timeline';
+TimelineScale.defaults = {
     position: 'bottom',
 
     tooltips: {
@@ -42,158 +268,16 @@ var TimelineConfig = {
     }
 };
 
+Chart.register(TimelineScale);
 
-/**
- * Convert the given value to a moment object using the given time options.
- * @see http://momentjs.com/docs/#/parsing/
- */
-function momentify(value, options) {
-    var parser = options.parser;
-    var format = options.parser || options.format;
+// Chart.scaleService.registerScaleType('timeline', TimelineScale, TimelineConfig);
 
-    if (typeof parser === 'function') {
-        return parser(value);
-    }
-
-    if (typeof value === 'string' && typeof format === 'string') {
-        return moment(value, format);
-    }
-
-    if (!(value instanceof moment)) {
-        value = moment(value);
-    }
-
-    if (value.isValid()) {
-        return value;
-    }
-
-    // Labels are in an incompatible moment format and no `parser` has been provided.
-    // The user might still use the deprecated `format` option to convert his inputs.
-    if (typeof format === 'function') {
-        return format(value);
-    }
-
-    return value;
+function TimelineController() {
+    Chart.BarController.apply(this, arguments);
 }
 
-function parse(input, scale) {
-    if (helpers.isNullOrUndef(input)) {
-        return null;
-    }
-
-    var options = scale.options.time;
-    var value = momentify(scale.getRightValue(input), options);
-    if (!value.isValid()) {
-        return null;
-    }
-
-    if (options.round) {
-        value.startOf(options.round);
-    }
-
-    return value.valueOf();
-}
-
-function arrayUnique(items) {
-    var hash = {};
-    var out = [];
-    var i, ilen, item;
-
-    for (i = 0, ilen = items.length; i < ilen; ++i) {
-        item = items[i];
-        if (!hash[item]) {
-            hash[item] = true;
-            out.push(item);
-        }
-    }
-
-    return out;
-}
-
-var MIN_INTEGER = Number.MIN_SAFE_INTEGER || -9007199254740991;
-var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
-
-var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
-
-    determineDataLimits: function() {
-        var me = this;
-        var chart = me.chart;
-        var timeOpts = me.options.time;
-        var elemOpts = me.chart.options.elements;
-        var min = MAX_INTEGER;
-        var max = MIN_INTEGER;
-        var timestamps = [];
-        var timestampobj = {};
-        var datasets = [];
-        var i, j, ilen, jlen, data, timestamp0, timestamp1;
-
-
-        // Convert data to timestamps
-        for (i = 0, ilen = (chart.data.datasets || []).length; i < ilen; ++i) {
-            if (chart.isDatasetVisible(i)) {
-                data = chart.data.datasets[i].data;
-                datasets[i] = [];
-
-                for (j = 0, jlen = data.length; j < jlen; ++j) {
-                    timestamp0 = parse(data[j][elemOpts.keyStart], me);
-                    timestamp1 = parse(data[j][elemOpts.keyEnd], me);
-                    if (timestamp0 > timestamp1) {
-                        [timestamp0, timestamp1] = [timestamp1, timestamp0];
-                    }
-                    if (min > timestamp0 && timestamp0) {
-                        min = timestamp0;
-                    }
-                    if (max < timestamp1 && timestamp1) {
-                        max = timestamp1;
-                    }
-                    datasets[i][j] = [timestamp0, timestamp1, data[j][elemOpts.keyValue]];
-                    if (Object.prototype.hasOwnProperty.call(timestampobj, timestamp0)) {
-                        timestampobj[timestamp0] = true;
-                        timestamps.push(timestamp0);
-                    }
-                    if (Object.prototype.hasOwnProperty.call(timestampobj, timestamp1)) {
-                        timestampobj[timestamp1] = true;
-                        timestamps.push(timestamp1);
-                    }
-                }
-            } else {
-                datasets[i] = [];
-            }
-        }
-
-        if (timestamps.size) {
-            timestamps.sort(function (a, b){
-                return a - b;
-            });
-        }
-
-        min = parse(timeOpts.min, me) || min;
-        max = parse(timeOpts.max, me) || max;
-
-        // In case there is no valid min/max, var's use today limits
-        min = min === MAX_INTEGER ? +moment().startOf('day') : min;
-        max = max === MIN_INTEGER ? +moment().endOf('day') + 1 : max;
-
-        // Make sure that max is strictly higher than min (required by the lookup table)
-        me.min = Math.min(min, max);
-        me.max = Math.max(min + 1, max);
-
-        // PRIVATE
-        me._horizontal = me.isHorizontal();
-        me._table = [];
-        me._timestamps = {
-            data: timestamps,
-            datasets: datasets,
-            labels: []
-        };
-    },
-});
-
-Chart.scaleService.registerScaleType('timeline', TimelineScale, TimelineConfig);
-
-Chart.controllers.timeline = Chart.controllers.bar.extend({
-
-    getBarBounds : function (bar) {
+TimelineController.prototype = object_assign(Object.create(Chart.BarController.prototype), {
+    getBarBounds(bar) {
         var vm =   bar._view;
         var x1, x2, y1, y2;
 
@@ -211,66 +295,50 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 
     },
 
-    update: function(reset) {
-        var me = this;
-        var meta = me.getMeta();
-        var chartOpts = me.chart.options;
-        if (chartOpts.textPadding || chartOpts.minBarWidth ||
-                chartOpts.showText || chartOpts.colorFunction) {
-            var elemOpts = me.chart.options.elements;
-            elemOpts.textPadding = chartOpts.textPadding || elemOpts.textPadding;
-            elemOpts.minBarWidth = chartOpts.minBarWidth || elemOpts.minBarWidth;
-            elemOpts.colorFunction = chartOpts.colorFunction || elemOpts.colorFunction;
-            elemOpts.minBarWidth = chartOpts.minBarWidth || elemOpts.minBarWidth;
-            if (Chart._tl_depwarn !== true) {
-                console.log('Timeline Chart: Configuration deprecated. Please check document on Github.');
-                Chart._tl_depwarn = true;
-            }
-        }
+    // update(reset) {
+    //     var me = this;
+    //     var meta = me.getMeta();
+    //     var chartOpts = me.chart.options;
+    //     if (chartOpts.textPadding || chartOpts.minBarWidth ||
+    //             chartOpts.showText || chartOpts.colorFunction) {
+    //         var elemOpts = me.chart.options.elements;
+    //         elemOpts.textPadding = chartOpts.textPadding || elemOpts.textPadding;
+    //         elemOpts.minBarWidth = chartOpts.minBarWidth || elemOpts.minBarWidth;
+    //         elemOpts.colorFunction = chartOpts.colorFunction || elemOpts.colorFunction;
+    //         elemOpts.minBarWidth = chartOpts.minBarWidth || elemOpts.minBarWidth;
+    //         if (Chart._tl_depwarn !== true) {
+    //             console.log('Timeline Chart: Configuration deprecated. Please check document on Github.');
+    //             Chart._tl_depwarn = true;
+    //         }
+    //     }
 
-        helpers.each(meta.data, function(rectangle, index) {
-            me.updateElement(rectangle, index, reset);
-        }, me);
-    },
+    //     helpers.each(meta.data, function(rectangle, index) {
+    //         me.updateElement(rectangle, index, reset);
+    //     }, me);
+    // },
 
-    updateElement: function(rectangle, index, reset) {
+    updateElements(rectangle, start, count, mode) {
         var me = this;
+        // var sharedOptions = me.getSharedOptions(firstOpts);
+        var vscale = me._cachedMeta.vScale;
+        var iscale = me._cachedMeta.iScale;
         var meta = me.getMeta();
-        var xScale = me.getScaleForId(meta.xAxisID);
-        var yScale = me.getScaleForId(meta.yAxisID);
         var dataset = me.getDataset();
-        var data = dataset.data[index];
         var custom = rectangle.custom || {};
         var datasetIndex = me.index;
         var opts = me.chart.options;
-        var elemOpts = opts.elements || Chart.defaults.timeline.elements;
-        var rectangleElementOptions = elemOpts.rectangle;
+        var elemOpts = opts.elements || TimelineController.defaults.elements;
+        var rectangleElementOptions = elemOpts.rectangle || {};
         var textPad = elemOpts.textPadding;
         var minBarWidth = elemOpts.minBarWidth;
+        var reset = mode === 'reset';
+        var firstOpts = me.resolveDataElementOptions(start, mode);
+        var sharedOptions = me.getSharedOptions(firstOpts);
 
-        rectangle._xScale = xScale;
-        rectangle._yScale = yScale;
-        rectangle._datasetIndex = me.index;
-        rectangle._index = index;
-
-        var text = data[elemOpts.keyValue];
-
-        var ruler = me.getRuler(index);
-
-        var x = xScale.getPixelForValue(data[elemOpts.keyStart]);
-        var end = xScale.getPixelForValue(data[elemOpts.keyEnd]);
-
-        var y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
-        var width = end - x;
-        var height = me.calculateBarHeight(ruler);
-        var color = _color(elemOpts.colorFunction(text, data, dataset, index));
-        var showText = elemOpts.showText;
-
-        var font = elemOpts.font;
-
-        if (!font) {
-            font = '12px bold Arial';
-        }
+        // rectangle._xScale = xScale;
+        // rectangle._yScale = yScale;
+        // rectangle._datasetIndex = me.index;
+        // rectangle._index = index;
 
         // This one has in account the size of the tick and the height of the bar, so we just
         // divide both of them by two and subtract the height part and add the tick part
@@ -278,96 +346,56 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         // in the middle of the tick.
         var boxY = y - (height / 2);
 
-        rectangle._model = {
-            x: reset ?  x - width : x,   // Top left of rectangle
-            y: boxY , // Top left of rectangle
-            width: Math.max(width, minBarWidth),
-            height: height,
-            base: x + width,
-            backgroundColor: color.rgbaString(),
-            borderSkipped: custom.borderSkipped ? custom.borderSkipped : rectangleElementOptions.borderSkipped,
-            borderColor: custom.borderColor ? custom.borderColor : helpers.getValueAtIndexOrDefault(dataset.borderColor, index, rectangleElementOptions.borderColor),
-            borderWidth: custom.borderWidth ? custom.borderWidth : helpers.getValueAtIndexOrDefault(dataset.borderWidth, index, rectangleElementOptions.borderWidth),
-            // Tooltip
-            label: me.chart.data.labels[index],
-            datasetLabel: dataset.label,
-            text: text,
-            textColor: color.luminosity() > 0.5 ? '#000000' : '#ffffff',
-        };
-
-        rectangle.draw = function() {
-            var ctx = this._chart.ctx;
-            var vm = this._view;
-            var oldAlpha = ctx.globalAlpha;
-            var oldOperation = ctx.globalCompositeOperation;
-
-            // Draw new rectangle with Alpha-Mix.
-            ctx.fillStyle = vm.backgroundColor;
-            ctx.lineWidth = vm.borderWidth;
-            ctx.globalCompositeOperation = 'destination-over';
-            ctx.fillRect(vm.x, vm.y, vm.width, vm.height);
-
-            ctx.globalAlpha = 0.5;
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.fillRect(vm.x, vm.y, vm.width, vm.height);
-
-            ctx.globalAlpha = oldAlpha;
-            ctx.globalCompositeOperation = oldOperation;
-            if (showText) {
-                ctx.beginPath();
-                var textRect = ctx.measureText(vm.text);
-                if (textRect.width > 0 && textRect.width + textPad + 2 < vm.width) {
-                    ctx.font = font;
-                    ctx.fillStyle = vm.textColor;
-                    ctx.lineWidth = 0;
-                    ctx.strokeStyle = vm.textColor;
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(vm.text, vm.x + textPad, vm.y + (vm.height) / 2);
-                }
-                ctx.fill();
+        for (var index = start; index < start + count; index++) {
+            var options = sharedOptions || me.resolveDataElementOptions(i, mode);
+            // var options = sharedOptions || me.resolveDataElementOptions(i, mode);
+            var data = dataset.data[index];
+            var text = data[elemOpts.keyValue];
+    
+            var ruler = me._getRuler(index);
+    
+            var x = vscale.getPixelForValue(data[elemOpts.keyStart]);
+            var end = vscale.getPixelForValue(data[elemOpts.keyEnd]);
+    
+            var y = iscale.getPixelForValue(data, datasetIndex, datasetIndex);
+            var width = end - x;
+            var height = me.calculateBarHeight(ruler);
+            var color = _color(elemOpts.colorFunction(text, data, dataset, index));
+            var showText = elemOpts.showText;
+    
+            var font = elemOpts.font;
+    
+            if (!font) {
+                font = '12px bold Arial';
             }
-        };
-
-        rectangle.inXRange = function (mouseX) {
-            var bounds = me.getBarBounds(this);
-            return mouseX >= bounds.left && mouseX <= bounds.right;
-        };
-        rectangle.tooltipPosition = function () {
-            var vm = this.getCenterPoint();
-            return {
-                x: vm.x ,
-                y: vm.y
+    
+            // var vpixels = me._calculateBarValuePixels(i, options);
+            // var ipixels = me._calculateBarIndexPixels(i, ruler, options);
+            var properties = {
+                x: reset ?  x - width : x,   // Top left of rectangle
+                y: boxY , // Top left of rectangle
+                width: Math.max(width, minBarWidth),
+                height: height,
+                base: x + width,
+                backgroundColor: color.hexString(),
+                borderSkipped: custom.borderSkipped ? custom.borderSkipped : rectangleElementOptions.borderSkipped,
+                borderColor: custom.borderColor ? custom.borderColor : helpers.resolve(dataset.borderColor || [], undefined, index) || rectangleElementOptions.borderColor,
+                borderWidth: custom.borderWidth ? custom.borderWidth : helpers.resolve(dataset.borderWidth || [], undefined, index) || rectangleElementOptions.borderWidth,
+                // Tooltip
+                label: me.chart.data.labels[index],
+                datasetLabel: dataset.label,
+                text: text,
+                textColor: color_luminosity(color) > 0.5 ? '#000000' : '#ffffff',
             };
-        };
-
-        rectangle.getCenterPoint = function () {
-            var vm = this._view;
-            var x, y;
-            x = vm.x + (vm.width / 2);
-            y = vm.y + (vm.height / 2);
-
-            return {
-                x : x,
-                y : y
-            };
-        };
-
-        rectangle.inRange = function (mouseX, mouseY) {
-            var inRange = false;
-
-            if(this._view)
-            {
-                var bounds = me.getBarBounds(this);
-                inRange = mouseX >= bounds.left && mouseX <= bounds.right &&
-                    mouseY >= bounds.top && mouseY <= bounds.bottom;
-            }
-            return inRange;
-        };
-
-        rectangle.pivot();
+            properties.options = options;
+            // if (includeOptions) {
+            //   properties.options = options;
+            // }
+            me.updateElement(rectangle[index], index, properties, mode);
+        }
     },
 
-    getBarCount: function() {
+    getBarCount() {
         var me = this;
         var barCount = 0;
         helpers.each(me.chart.data.datasets, function(dataset, datasetIndex) {
@@ -380,19 +408,19 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
     },
 
 
-    // draw
-    draw: function (ease) {
-        var easingDecimal = ease || 1;
-        var i, len;
-        var metaData = this.getMeta().data;
-        for (i = 0, len = metaData.length; i < len; i++)
-        {
-            metaData[i].transition(easingDecimal).draw();
-        }
-    },
+    // // draw
+    // draw(ease){
+    //     var easingDecimal = ease || 1;
+    //     var i, len;
+    //     var metaData = this.getMeta().data;
+    //     for (i = 0, len = metaData.length; i < len; i++)
+    //     {
+    //         metaData[i].transition(easingDecimal).draw();
+    //     }
+    // },
 
     // From controller.bar
-    calculateBarHeight: function(ruler) {
+    calculateBarHeight(ruler) {
         var me = this;
         var yScale = me.getScaleForId(me.getMeta().yAxisID);
         if (yScale.options.barThickness) {
@@ -401,18 +429,38 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         return yScale.options.stacked ? ruler.categoryHeight : ruler.barHeight;
     },
 
-    removeHoverStyle: function(e) {
+    removeHoverStyle(e) {
         // TODO
     },
 
-    setHoverStyle: function(e) {
+    setHoverStyle(e) {
         // TODO: Implement this
-    }
+    },
 
+    // parseObjectData(meta, data, start, count) {
+    //     var iScale = meta.iScale,
+    //         vScale = meta.vScale;
+    //     var _this$_parsing = this._parsing,
+    //         _this$_parsing$xAxisK = _this$_parsing.xAxisKey,
+    //         xAxisKey = _this$_parsing$xAxisK === void 0 ? 'x' : _this$_parsing$xAxisK,
+    //         _this$_parsing$yAxisK = _this$_parsing.yAxisKey,
+    //         yAxisKey = _this$_parsing$yAxisK === void 0 ? 'y' : _this$_parsing$yAxisK;
+    //     var iAxisKey = iScale.axis === 'x' ? xAxisKey : yAxisKey;
+    //     var vAxisKey = vScale.axis === 'x' ? xAxisKey : yAxisKey;
+    //     var parsed = [];
+    //     var i, ilen, item, obj;
+    //     for (i = start, ilen = start + count; i < ilen; ++i) {
+    //       obj = data[i];
+    //       item = {};
+    //       item[iScale.axis] = iScale.parse(resolveObjectKey(obj, iAxisKey), i);
+    //       parsed.push(parseValue(resolveObjectKey(obj, vAxisKey), item, vScale, i));
+    //     }
+    //     return parsed;
+    //   }
 });
 
 
-Chart.defaults.timeline = {
+var TimelineControllerDefaults = object_assign({}, Chart.BarController.defaults, {
     elements: {
         colorFunction: function() {
             return _color('black');
@@ -439,7 +487,7 @@ Chart.defaults.timeline = {
     },
 
     scales: {
-        xAxes: [{
+        x: {
             type: 'timeline',
             position: 'bottom',
             distribution: 'linear',
@@ -456,8 +504,8 @@ Chart.defaults.timeline = {
                 maxRotation: 0
             },
             unit: 'day'
-        }],
-        yAxes: [{
+        },
+        y: {
             type: 'category',
             position: 'left',
             barThickness : 20,
@@ -470,7 +518,7 @@ Chart.defaults.timeline = {
                 drawBorder: true,
                 drawTicks: true
             }
-        }]
+        }
     },
     tooltips: {
         callbacks: {
@@ -486,4 +534,10 @@ Chart.defaults.timeline = {
             }
         }
     }
-};
+});
+
+
+TimelineController.id = 'timeline';
+TimelineController.defaults = TimelineControllerDefaults;
+
+Chart.register(TimelineController);

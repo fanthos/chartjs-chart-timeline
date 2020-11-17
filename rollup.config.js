@@ -11,6 +11,7 @@ export default [
         external: ['chart.js', 'moment'],
         output: {
             file: 'timeline.js',
+            sourcemap: true,
             format: 'umd',
             globals: {
                 'chart.js': 'Chart',
@@ -27,6 +28,7 @@ export default [
         external: ['chart.js', 'moment'],
         output: {
             file: 'timeline.min.js',
+            sourcemap: true,
             format: 'umd',
             globals: {
                 'chart.js': 'Chart',
