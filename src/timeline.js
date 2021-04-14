@@ -269,7 +269,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         var font = elemOpts.font;
 
         if (!font) {
-            font = '12px bold Arial';
+            font = 'bold 12px "Helvetica Neue", Helvetica, Arial, sans-serif';
         }
 
         // This one has in account the size of the tick and the height of the bar, so we just
