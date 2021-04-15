@@ -190,6 +190,34 @@ Chart.scaleService.registerScaleType('timeline', TimelineScale, TimelineConfig);
 
 Chart.controllers.timeline = Chart.controllers.bar.extend({
 
+    /**
+	 * @private
+	 */
+     _dataElementOptions: [
+		'backgroundColor',
+		'borderColor',
+		'borderSkipped',
+		'borderWidth',
+		'barPercentage',
+		'barThickness',
+		'categoryPercentage',
+		'maxBarThickness',
+		'minBarWidth'   // the only difference to BarController.minBarLength
+	],
+
+    /**
+	 * Data element option keys to be resolved in _resolveDataElementOptions.
+	 * A derived controller may override this to resolve controller-specific options.
+	 * The keys defined here are for backward compatibility for legend styles.
+	 * @private
+	 */
+	_dataElementOptions: [
+		'backgroundColor',
+		'borderColor',
+		'borderWidth',
+		'pointStyle'
+	],
+
     getBarBounds : function (bar) {
         var vm =   bar._view;
         var x1, x2, y1, y2;
