@@ -1,8 +1,8 @@
 import Chart from 'chart.js';
 import moment from 'moment';
 
-const helpers = Chart.helpers;
-const isArray = helpers.isArray;
+var helpers = Chart.helpers;
+var isArray = helpers.isArray;
 
 var _color = Chart.helpers.color;
 
