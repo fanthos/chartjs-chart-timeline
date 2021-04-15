@@ -2,9 +2,6 @@ import Chart from 'chart.js';
 import moment from 'moment';
 
 var helpers = Chart.helpers;
-var isArray = helpers.isArray;
-
-var _color = Chart.helpers.color;
 
 var TimelineConfig = {
     position: 'bottom',
@@ -265,7 +262,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         var y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
         var width = end - x;
         var height = me.calculateBarHeight(ruler);
-        var color = _color(elemOpts.colorFunction(text, data, dataset, index));
+        var color = helpers.color(elemOpts.colorFunction(text, data, dataset, index));
         var showText = elemOpts.showText;
 
         var font = elemOpts.font;
@@ -417,7 +414,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 Chart.defaults.timeline = {
     elements: {
         colorFunction: function() {
-            return _color('black');
+            return helpers.color('black');
         },
         showText: true,
         textPadding: 4,
