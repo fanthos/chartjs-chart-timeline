@@ -236,9 +236,16 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
     updateElement: function(rectangle, index, reset) {
         var me = this;
         var meta = me.getMeta();
+        var dataset = me.getDataset();
+
         var xScale = me.getScaleForId(meta.xAxisID);
         var yScale = me.getScaleForId(meta.yAxisID);
-        var dataset = me.getDataset();
+
+        rectangle._xScale = xScale;
+        rectangle._yScale = yScale;
+        rectangle._datasetIndex = me.index;
+        rectangle._index = index;
+        
         var data = dataset.data[index];
         var custom = rectangle.custom || {};
         var datasetIndex = me.index;
@@ -247,11 +254,6 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         var rectangleElementOptions = elemOpts.rectangle;
         var textPad = elemOpts.textPadding;
         var minBarWidth = elemOpts.minBarWidth;
-
-        rectangle._xScale = xScale;
-        rectangle._yScale = yScale;
-        rectangle._datasetIndex = me.index;
-        rectangle._index = index;
 
         var text = data[elemOpts.keyValue];
 

@@ -7,8 +7,8 @@
     Chart = Chart && Chart.hasOwnProperty('default') ? Chart['default'] : Chart;
     moment = moment && moment.hasOwnProperty('default') ? moment['default'] : moment;
 
-    const helpers = Chart.helpers;
-    const isArray = helpers.isArray;
+    var helpers = Chart.helpers;
+    var isArray = helpers.isArray;
 
     var _color = Chart.helpers.color;
 
@@ -137,11 +137,11 @@
                             max = timestamp1;
                         }
                         datasets[i][j] = [timestamp0, timestamp1, data[j][elemOpts.keyValue]];
-                        if (!timestampobj.hasOwnProperty(timestamp0)) {
+                        if (Object.prototype.hasOwnProperty.call(timestampobj, timestamp0)) {
                             timestampobj[timestamp0] = true;
                             timestamps.push(timestamp0);
                         }
-                        if (!timestampobj.hasOwnProperty(timestamp1)) {
+                        if (Object.prototype.hasOwnProperty.call(timestampobj, timestamp1)) {
                             timestampobj[timestamp1] = true;
                             timestamps.push(timestamp1);
                         }
@@ -226,9 +226,16 @@
         updateElement: function(rectangle, index, reset) {
             var me = this;
             var meta = me.getMeta();
+            var dataset = me.getDataset();
+
             var xScale = me.getScaleForId(meta.xAxisID);
             var yScale = me.getScaleForId(meta.yAxisID);
-            var dataset = me.getDataset();
+
+            rectangle._xScale = xScale;
+            rectangle._yScale = yScale;
+            rectangle._datasetIndex = me.index;
+            rectangle._index = index;
+            
             var data = dataset.data[index];
             var custom = rectangle.custom || {};
             var datasetIndex = me.index;
@@ -237,11 +244,6 @@
             var rectangleElementOptions = elemOpts.rectangle;
             var textPad = elemOpts.textPadding;
             var minBarWidth = elemOpts.minBarWidth;
-
-            rectangle._xScale = xScale;
-            rectangle._yScale = yScale;
-            rectangle._datasetIndex = me.index;
-            rectangle._index = index;
 
             var text = data[elemOpts.keyValue];
 
@@ -259,7 +261,7 @@
             var font = elemOpts.font;
 
             if (!font) {
-                font = '12px bold Arial';
+                font = 'bold 12px "Helvetica Neue", Helvetica, Arial, sans-serif';
             }
 
             // This one has in account the size of the tick and the height of the bar, so we just
@@ -405,7 +407,7 @@
     Chart.defaults.timeline = {
         elements: {
             colorFunction: function() {
-                return '#404060';
+                return _color('black');
             },
             showText: true,
             textPadding: 4,
