@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <title>Bar Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/moment/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.js"></script>
+    <script src="../timeline.js"></script>
+
+    <style>
+      canvas {
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="container" style="width: 75%">
+      <canvas id="canvas"></canvas>
+    </div>
+    <script>
+      var ctx = document.getElementById("canvas").getContext("2d");
+      var chart = new Chart(ctx, {
+        type: "timeline",
+        options: {
+          elements: {
+            showText: true,
+            textPadding: 4,
+          },
+        },
+        "data": {
+          "labels": ["", "Worker 1", "", "Worker 2", "Worker 3", "Worker4"],
+          "datasets": [
+            {
+                "data": [["2021-04-08T22:00:00Z", "2021-04-09T22:00:00Z", "Team 1"]],
+                "backgroundColor": "rgba(175,195,221,0.3)",
+                "borderColor": "rgba(175,195,221,1)",
+                "borderWidth": 0,
+                "hoverBackgroundColor": "rgba(175,195,221,0.8)",
+                "hoverBorderColor": "rgba(175,195,221,0.8)",
+                "hoverBorderWidth": 0
+            },
+            {
+                "data": [["2021-04-09T01:00:00Z", "2021-04-09T11:00:00Z", "03:00 - 13:00 Bill"]],
+                "backgroundColor": "rgba(210,195,163,0.5)",
+                "borderColor": "rgba(254,133,0,1)",
+                "borderWidth": 2,
+                "hoverBackgroundColor": "rgba(254,133,0,0.8)",
+                "hoverBorderColor": "rgba(254,133,0,1)",
+                "hoverBorderWidth": 1
+            },
+            {
+                "data": [["2021-04-08T22:00:00Z", "2021-04-09T22:00:00Z", "Team 2"]],
+                "backgroundColor": "rgba(175,195,221,0.3)",
+                "borderColor": "rgba(175,195,221,1)",
+                "borderWidth": 0,
+                "hoverBackgroundColor": "rgba(175,195,221,0.8)",
+                "hoverBorderColor": "rgba(175,195,221,0.8)",
+                "hoverBorderWidth": 0
+            }, {
+                "data": [["2021-04-09T06:00:00Z", "2021-04-09T14:00:00Z", "08:00 - 16:00 Greg"]],
+                "backgroundColor": "rgba(254,214,0,0.3)",
+                "borderColor": "rgba(254,214,0,1)",
+                "borderWidth": 2,
+                "hoverBackgroundColor": "rgba(254,214,0,0.5)",
+                "hoverBorderColor": "rgba(254,214,0,0.9)",
+                "hoverBorderWidth": 1
+            }, {
+                "data": [["2021-04-09T09:00:00Z", "2021-04-09T17:00:00Z", "11:00 - 19:00 Michael"]],
+                "backgroundColor": "rgba(254,171,163,0.5)",
+                "borderColor": "rgba(254,133,0,0.7)",
+                "borderWidth": 2,
+                "hoverBackgroundColor": "rgba(254,133,0,0.7)",
+                "hoverBorderColor": "rgba(171,133,0,1)",
+                "hoverBorderWidth": 1
+            }, {
+                "data": [["2021-04-09T10:00:00Z", "2021-04-09T17:30:00Z", "12:00 - 19:30 Jonathan"]],
+                "backgroundColor": "rgba(254,214,0,0.3)",
+                "borderColor": "rgba(254,214,0,1)",
+                "borderWidth": 2,
+                "hoverBackgroundColor": "rgba(254,214,0,0.5)",
+                "hoverBorderColor": "rgba(254,214,0,0.9)",
+                "hoverBorderWidth": 1
+            }
+          ],
+        },
+      });
+    </script>
+  </body>
+</html>

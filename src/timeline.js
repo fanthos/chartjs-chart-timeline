@@ -262,10 +262,15 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         var y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
         var width = end - x;
         var height = me.calculateBarHeight(ruler);
-        var color = helpers.color(elemOpts.colorFunction(text, data, dataset, index));
+        var color = helpers.color(dataset.backgroundColor || elemOpts.backgroundColor);
         var showText = elemOpts.showText;
-
+        var borderColor = helpers.color(dataset.borderColor || elemOpts.borderColor);
+        var borderWidth = dataset.borderWidth || elemOpts.borderWidth || 0;
         var font = elemOpts.font;
+
+        // TO DO: how to integrate existing color function?
+        // e.g. function overrides dataset/element option if return value is not null?
+        // var color = helpers.color(elemOpts.colorFunction(text, data, dataset, index));
 
         if (!font) {
             font = 'bold 12px "Helvetica Neue", Helvetica, Arial, sans-serif';
@@ -309,6 +314,18 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
             ctx.globalAlpha = 0.5;
             ctx.globalCompositeOperation = 'source-over';
             ctx.fillRect(vm.x, vm.y, vm.width, vm.height);
+
+            var bw = vm.borderWidth || 0;
+            if (bw > 0) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(vm.x, vm.y, vm.width, vm.height);
+                ctx.clip();
+                ctx.fillStyle = vm.borderColor;
+                ctx.rect(vm.x + bw, vm.y + bw, vm.width - (2 * bw), vm.height - (2 * bw));
+                ctx.fill('evenodd');
+                ctx.restore();
+            }
 
             ctx.globalAlpha = oldAlpha;
             ctx.globalCompositeOperation = oldOperation;
@@ -408,6 +425,12 @@ Chart.defaults.timeline = {
         colorFunction: function() {
             return helpers.color('black');
         },
+        backgroundColor: "gold",
+        borderColor: "orange",
+        borderWidth: 2,
+        hoverBackgroundColor: "orange",
+        hoverBorderColor: "red",
+        hoverBorderWidth: 1,
         showText: true,
         textPadding: 4,
         minBarWidth: 1,
