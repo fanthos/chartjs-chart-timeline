@@ -188,24 +188,17 @@
     		'borderColor',
     		'borderSkipped',
     		'borderWidth',
-    		'barPercentage',
+            'hoverBackgroundColor',
+            'hoverBorderColor',
+            'hoverBorderWidth',
     		'barThickness',
-    		'categoryPercentage',
     		'maxBarThickness',
-    		'minBarWidth'   // the only difference to BarController.minBarLength
-    	],
-
-        /**
-    	 * Data element option keys to be resolved in _resolveDataElementOptions.
-    	 * A derived controller may override this to resolve controller-specific options.
-    	 * The keys defined here are for backward compatibility for legend styles.
-    	 * @private
-    	 */
-    	_dataElementOptions: [
-    		'backgroundColor',
-    		'borderColor',
-    		'borderWidth',
-    		'pointStyle'
+    		'minBarWidth',   // difference to Chart.controllers.bar.minBarLength necessary?
+            'textPadding',
+            'showText',
+            'keyValue',
+            'keyStart',
+            'keyEnd'
     	],
 
         getBarBounds : function (bar) {
@@ -252,70 +245,45 @@
             var me = this;
             var meta = me.getMeta();
             var dataset = me.getDataset();
+            var options = me._resolveDataElementOptions(rectangle, index);
 
             var xScale = me.getScaleForId(meta.xAxisID);
             var yScale = me.getScaleForId(meta.yAxisID);
+            var data = dataset.data[index];
+            var x = xScale.getPixelForValue(data[options.keyStart]);
+            var y = yScale.getPixelForValue(data, me.index, me.index);
+            var end = xScale.getPixelForValue(data[options.keyEnd]);
+            var width = end - x;
+            var ruler = me.getRuler(index);
+            var height = me.calculateBarHeight(ruler);
 
-            rectangle._xScale = xScale;
-            rectangle._yScale = yScale;
+            rectangle._xScale = me.getScaleForId(meta.xAxisID);
+    		rectangle._yScale = me.getScaleForId(meta.yAxisID);
             rectangle._datasetIndex = me.index;
             rectangle._index = index;
-            
-            var data = dataset.data[index];
-            var custom = rectangle.custom || {};
-            var datasetIndex = me.index;
-            var opts = me.chart.options;
-            var elemOpts = opts.elements || Chart.defaults.timeline.elements;
-            var rectangleElementOptions = elemOpts.rectangle;
-            var textPad = elemOpts.textPadding;
-            var minBarWidth = elemOpts.minBarWidth;
+            rectangle._model = {
+                backgroundColor: options.backgroundColor,
+                borderColor: options.borderColor,
+                borderSkipped: options.borderSkipped,
+                borderWidth: options.borderWidth,
+                datasetLabel: dataset.label,
+                label: me.chart.data.labels[index],
+                // the following are additional to regular bar
+                x: reset ?  x - width : x,   // Top left of rectangle
+                y: (y - (height / 2)) , // Top left of rectangle
+                width: Math.max(width, options.minBarWidth),
+                height: height,
+                base: x + width,
+                text: data[options.keyValue],
+                textColor: (helpers.color(options.backgroundColor).luminosity()) > 0.5 ? '#000000' : '#ffffff',
+            };
 
-            var text = data[elemOpts.keyValue];
-
-            var ruler = me.getRuler(index);
-
-            var x = xScale.getPixelForValue(data[elemOpts.keyStart]);
-            var end = xScale.getPixelForValue(data[elemOpts.keyEnd]);
-
-            var y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
-            var width = end - x;
-            var height = me.calculateBarHeight(ruler);
-            var color = helpers.color(dataset.backgroundColor || elemOpts.backgroundColor);
-            var showText = elemOpts.showText;
-            var borderColor = helpers.color(dataset.borderColor || elemOpts.borderColor);
-            var borderWidth = dataset.borderWidth || elemOpts.borderWidth || 0;
-            var font = elemOpts.font;
+            var text = data[options.keyValue];
+            var showText = options.showText;
 
             // TO DO: how to integrate existing color function?
             // e.g. function overrides dataset/element option if return value is not null?
             // var color = helpers.color(elemOpts.colorFunction(text, data, dataset, index));
-
-            if (!font) {
-                font = 'bold 12px "Helvetica Neue", Helvetica, Arial, sans-serif';
-            }
-
-            // This one has in account the size of the tick and the height of the bar, so we just
-            // divide both of them by two and subtract the height part and add the tick part
-            // to the real position of the element y. The purpose here is to place the bar
-            // in the middle of the tick.
-            var boxY = y - (height / 2);
-
-            rectangle._model = {
-                x: reset ?  x - width : x,   // Top left of rectangle
-                y: boxY , // Top left of rectangle
-                width: Math.max(width, minBarWidth),
-                height: height,
-                base: x + width,
-                backgroundColor: color.rgbaString(),
-                borderSkipped: custom.borderSkipped ? custom.borderSkipped : rectangleElementOptions.borderSkipped,
-                borderColor: custom.borderColor ? custom.borderColor : helpers.getValueAtIndexOrDefault(dataset.borderColor, index, rectangleElementOptions.borderColor),
-                borderWidth: custom.borderWidth ? custom.borderWidth : helpers.getValueAtIndexOrDefault(dataset.borderWidth, index, rectangleElementOptions.borderWidth),
-                // Tooltip
-                label: me.chart.data.labels[index],
-                datasetLabel: dataset.label,
-                text: text,
-                textColor: color.luminosity() > 0.5 ? '#000000' : '#ffffff',
-            };
 
             rectangle.draw = function() {
                 var ctx = this._chart.ctx;
@@ -350,13 +318,12 @@
                 if (showText) {
                     ctx.beginPath();
                     var textRect = ctx.measureText(vm.text);
-                    if (textRect.width > 0 && textRect.width + textPad + 2 < vm.width) {
-                        ctx.font = font;
-                        ctx.fillStyle = vm.textColor;
+                    if (textRect.width > 0 && textRect.width + options.textPadding + 2 < vm.width) {
+                        if (options.font) {ctx.font = options.font;}                    ctx.fillStyle = vm.textColor;
                         ctx.lineWidth = 0;
                         ctx.strokeStyle = vm.textColor;
                         ctx.textBaseline = 'middle';
-                        ctx.fillText(vm.text, vm.x + textPad, vm.y + (vm.height) / 2);
+                        ctx.fillText(vm.text, vm.x + options.textPadding, vm.y + (vm.height) / 2);
                     }
                     ctx.fill();
                 }
@@ -435,6 +402,76 @@
             return yScale.options.stacked ? ruler.categoryHeight : ruler.barHeight;
         },
 
+        /**
+    	 * @private
+    	 */
+    	_resolveDataElementOptions: function(element, index) {
+
+            // TODO revert to standard _resolveDataElementOptions from datasetcontroller
+            
+            var resolve = helpers.options.resolve;
+            // copied from dataset controller
+            var me = this;
+    		var custom = element && element.custom;
+    		var cached = me._cachedDataOpts;
+    		if (cached && !custom) {
+    			return cached;
+    		}
+    		var chart = me.chart;
+    		var datasetOpts = me._config;
+    		var options = chart.options.elements[me.dataElementType.prototype._type] || {};
+    		var elementOptions = me._dataElementOptions;
+    		var values = {};
+
+    		// Scriptable options
+    		var context = {
+    			chart: chart,
+    			dataIndex: index,
+    			dataset: me.getDataset(),
+    			datasetIndex: me.index
+    		};
+
+    		// `resolve` sets cacheable to `false` if any option is indexed or scripted
+    		var info = {cacheable: !custom};
+
+    		var keys, i, ilen, key;
+
+    		custom = custom || {};
+
+    		if (helpers.isArray(elementOptions)) {
+    			for (i = 0, ilen = elementOptions.length; i < ilen; ++i) {
+    				key = elementOptions[i];
+    				values[key] = resolve([
+    					custom[key],
+    					datasetOpts[key],
+    					options[key]
+    				], context, index, info);
+    			}
+    		} else {
+    			keys = Object.keys(elementOptions);
+    			for (i = 0, ilen = keys.length; i < ilen; ++i) {
+    				key = keys[i];
+    				values[key] = resolve([
+    					custom[key],
+    					datasetOpts[elementOptions[key]],
+    					datasetOpts[key],
+    					options[key]
+    				], context, index, info);
+    			}
+    		}
+
+            // TODO merge global options
+            if (!options.keyStart) {options.keyStart = 0;}        if (!options.keyEnd) {options.keyEnd = 1;}        if (!options.keyValue) {options.keyValue = 2;}        if (!options.barThickness) {options.barThickness = 30;}        if (!options.maxBarThickness) {options.maxBarThickness = 60;}        if (!options.minBarWidth) {options.minBarWidth = 40;}        if (!options.showText) {options.showText = true;}        if (!options.textPadding) {options.textPadding = 4;}
+            if (info.cacheable) {
+    			me._cachedDataOpts = Object.freeze(values);
+    		}
+
+            var indexOpts = me._getIndexScale().options;
+    		var valueOpts = me._getValueScale().options;
+
+    		return values;
+    	}
+
     });
 
 
@@ -475,9 +512,6 @@
                 type: 'timeline',
                 position: 'bottom',
                 distribution: 'linear',
-                categoryPercentage: 0.8,
-                barPercentage: 0.9,
-
                 gridLines: {
                     display: true,
                     // offsetGridLines: true,
@@ -493,8 +527,6 @@
                 type: 'category',
                 position: 'left',
                 barThickness : 20,
-                categoryPercentage: 0.8,
-                barPercentage: 0.9,
                 offset: true,
                 gridLines: {
                     display: true,
