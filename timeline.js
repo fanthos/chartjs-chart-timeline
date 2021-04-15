@@ -8,9 +8,6 @@
     moment = moment && moment.hasOwnProperty('default') ? moment['default'] : moment;
 
     var helpers = Chart.helpers;
-    var isArray = helpers.isArray;
-
-    var _color = Chart.helpers.color;
 
     var TimelineConfig = {
         position: 'bottom',
@@ -255,7 +252,7 @@
             var y = yScale.getPixelForValue(data, datasetIndex, datasetIndex);
             var width = end - x;
             var height = me.calculateBarHeight(ruler);
-            var color = _color(elemOpts.colorFunction(text, data, dataset, index));
+            var color = helpers.color(elemOpts.colorFunction(text, data, dataset, index));
             var showText = elemOpts.showText;
 
             var font = elemOpts.font;
@@ -393,21 +390,13 @@
             return yScale.options.stacked ? ruler.categoryHeight : ruler.barHeight;
         },
 
-        removeHoverStyle: function(e) {
-            // TODO
-        },
-
-        setHoverStyle: function(e) {
-            // TODO: Implement this
-        }
-
     });
 
 
     Chart.defaults.timeline = {
         elements: {
             colorFunction: function() {
-                return _color('black');
+                return helpers.color('black');
             },
             showText: true,
             textPadding: 4,

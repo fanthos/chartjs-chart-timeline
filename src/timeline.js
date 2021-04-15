@@ -400,14 +400,6 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         return yScale.options.stacked ? ruler.categoryHeight : ruler.barHeight;
     },
 
-    removeHoverStyle: function(e) {
-        // TODO
-    },
-
-    setHoverStyle: function(e) {
-        // TODO: Implement this
-    }
-
 });
 
 
