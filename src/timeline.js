@@ -401,13 +401,33 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         return yScale.options.stacked ? ruler.categoryHeight : ruler.barHeight;
     },
 
-    removeHoverStyle: function(e) {
-        // TODO
+    removeHoverStyle: function(element) {
+        console.log("timeline.js: removeHoverStyle: star...")
+        helpers.merge(element._model, element.$previousStyle || {});
+        delete element.$previousStyle;
     },
 
-    setHoverStyle: function(e) {
-        // TODO: Implement this
-    }
+    setHoverStyle: function(element) {
+        console.log("timeline.js: setHoverStyle: star...")
+        console.log("timeline.js: setHoverStyle: this: ", this)
+        console.log("timeline.js: setHoverStyle: this.chart: ", this.chart)
+        console.log("timeline.js: setHoverStyle: helpers: ", helpers)
+        var dataset = this.chart.data.datasets[element._datasetIndex];
+        var index = element._index;
+        var custom = element.custom || {};
+        var model = element._model;
+        var getHoverColor = helpers.getHoverColor;
+
+        element.$previousStyle = {
+            backgroundColor: model.backgroundColor,
+            borderColor: model.borderColor,
+            borderWidth: model.borderWidth
+        };
+
+        model.backgroundColor = helpers.options.resolve([custom.hoverBackgroundColor, dataset.hoverBackgroundColor, getHoverColor(model.backgroundColor)], undefined, index);
+        model.borderColor = helpers.options.resolve([custom.hoverBorderColor, dataset.hoverBorderColor, getHoverColor(model.borderColor)], undefined, index);
+        model.borderWidth = helpers.options.resolve([custom.hoverBorderWidth, dataset.hoverBorderWidth, model.borderWidth], undefined, index);
+    },
 
 });
 
