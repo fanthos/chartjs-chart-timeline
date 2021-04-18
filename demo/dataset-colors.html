@@ -31,7 +31,7 @@
           },
         },
         "data": {
-          "labels": ["", "Worker 1", "", "Worker 2", "Worker 3", "Worker4"],
+          "labels": ["", "Worker 1", "", "Worker 2", "Worker 3", "Worker 4"],
           "datasets": [
             {
                 "data": [["2021-04-08T22:00:00Z", "2021-04-09T22:00:00Z", "Team 1"]],
@@ -43,10 +43,19 @@
                 "hoverBorderWidth": 0
             },
             {
-                "data": [["2021-04-09T01:00:00Z", "2021-04-09T11:00:00Z", "03:00 - 13:00 Bill"]],
-                "backgroundColor": "rgba(210,195,163,0.5)",
-                "borderColor": "rgba(254,133,0,1)",
-                "borderWidth": 2,
+                "data": [
+                  ["2021-04-09T01:00:00Z", "2021-04-09T11:00:00Z", "03:00 - 13:00 Bill"],
+                  ["2021-04-09T13:00:00Z", "2021-04-09T15:00:00Z", "15:00 - 17:00 Bill"]
+                ],
+                "backgroundColor": [
+                  "rgba(0,204,102,0.3)",
+                  "rgba(0,128,254,0.3)"
+                ],
+                "borderColor": [
+                  "rgba(254,133,0,0.7)",
+                  "rgba(204,0,153,0.7)"
+                ],
+                "borderWidth": [2, 4],
                 "hoverBackgroundColor": "rgba(254,133,0,0.8)",
                 "hoverBorderColor": "rgba(255,0,0,1)",
                 "hoverBorderWidth": 1
