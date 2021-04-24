@@ -60,24 +60,24 @@ function arrayUnique(items) {
 function toTimestamp(scale, input) {
 	var adapter = scale._adapter;
 	var options = scale.options.time;
-    var parser = options.parser;
+	var parser = options.parser;
 	var format = parser || options.format;
 	var value = input;
 
-    if (typeof parser === 'function') {
+	if (typeof parser === 'function') {
 		value = parser(value);
-    }
+	}
 
 	// Only parse if its not a timestamp already
 	if (!helpers.isFinite(value)) {
 		value = typeof format === 'string'
 			? adapter.parse(value, format)
 			: adapter.parse(value);
-    }
+	}
 
 	if (value !== null) {
 		return +value;
-    }
+	}
 
 	// Labels are in an incompatible format and no `parser` has been provided.
 	// The user might still use the deprecated `format` option for parsing.
@@ -87,26 +87,26 @@ function toTimestamp(scale, input) {
 		// `format` could return something else than a timestamp, if so, parse it
 		if (!helpers.isFinite(value)) {
 			value = adapter.parse(value);
-    }
-    }
+		}
+	}
 
-    return value;
+	return value;
 }
 
 function parse(scale, input) {
-    if (helpers.isNullOrUndef(input)) {
-        return null;
-    }
+	if (helpers.isNullOrUndef(input)) {
+		return null;
+	}
 
-    var options = scale.options.time;
+	var options = scale.options.time;
 	var value = toTimestamp(scale, scale.getRightValue(input));
 	if (value === null) {
 		return value;
-    }
+	}
 
-    if (options.round) {
+	if (options.round) {
 		value = +scale._adapter.startOf(value, options.round);
-    }
+	}
 
 	return value;
 }
@@ -119,75 +119,104 @@ var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
     determineDataLimits: function() {
         var me = this;
         var chart = me.chart;
+        var adapter = me._adapter;
         var timeOpts = me.options.time;
-        var elemOpts = me.chart.options.elements;
+        var unit = timeOpts.unit || 'day';
         var min = MAX_INTEGER;
         var max = MIN_INTEGER;
         var timestamps = [];
-        var timestampobj = {};
         var datasets = [];
-        var i, j, ilen, jlen, data, timestamp0, timestamp1;
+        var labels = [];
+        var i, j, ilen, jlen, data, timestamp;
+        var dataLabels = chart.data.labels || [];
+		var elemOpts = me.chart.options.elements;
+        var timestamp0, timestamp1;
+        var timestampobj = {};
 
+		// Convert labels to timestamps
+		// for (i = 0, ilen = dataLabels.length; i < ilen; ++i) {
+		// 	labels.push(parse(me, dataLabels[i]));
+		// }
 
-        // Convert data to timestamps
-        for (i = 0, ilen = (chart.data.datasets || []).length; i < ilen; ++i) {
-            if (chart.isDatasetVisible(i)) {
-                data = chart.data.datasets[i].data;
-                datasets[i] = [];
+		// Convert data to timestamps
+        // adapted for timeline which has two timestamps instead of one
+		for (i = 0, ilen = (chart.data.datasets || []).length; i < ilen; ++i) {
+			if (chart.isDatasetVisible(i)) {
+				data = chart.data.datasets[i].data;
 
-                for (j = 0, jlen = data.length; j < jlen; ++j) {
-                    timestamp0 = parse(me, data[j][elemOpts.keyStart]);
-                    timestamp1 = parse(me, data[j][elemOpts.keyEnd]);
-                    if (timestamp0 > timestamp1) {
-                        [timestamp0, timestamp1] = [timestamp1, timestamp0];
-                    }
-                    if (min > timestamp0 && timestamp0) {
-                        min = timestamp0;
-                    }
-                    if (max < timestamp1 && timestamp1) {
-                        max = timestamp1;
-                    }
-                    datasets[i][j] = [timestamp0, timestamp1, data[j][elemOpts.keyValue]];
-                    if (Object.prototype.hasOwnProperty.call(timestampobj, timestamp0)) {
-                        timestampobj[timestamp0] = true;
-                        timestamps.push(timestamp0);
-                    }
-                    if (Object.prototype.hasOwnProperty.call(timestampobj, timestamp1)) {
-                        timestampobj[timestamp1] = true;
-                        timestamps.push(timestamp1);
-                    }
-                }
-            } else {
-                datasets[i] = [];
-            }
-        }
+				// Let's consider that all data have the same format.
+                // for timeline data is in arrays like [start, end, label]
+				if (helpers.isArray(data[0])) {
+					datasets[i] = [];
 
-        if (timestamps.size) {
-            timestamps.sort(function (a, b){
-                return a - b;
-            });
-        }
+					for (j = 0, jlen = data.length; j < jlen; ++j) {
+						timestamp0 = parse(me, data[j][elemOpts.keyStart]);
+						timestamp1 = parse(me, data[j][elemOpts.keyEnd]);
+						if (timestamp0 > timestamp1) {
+							[timestamp0, timestamp1] = [timestamp1, timestamp0];
+						}
+						if (min > timestamp0 && timestamp0) {
+							min = timestamp0;
+						}
+						if (max < timestamp1 && timestamp1) {
+							max = timestamp1;
+						}
+						datasets[i][j] = [timestamp0, timestamp1, data[j][elemOpts.keyValue]];
+						if (Object.prototype.hasOwnProperty.call(timestampobj, timestamp0)) {
+							timestampobj[timestamp0] = true;
+							timestamps.push(timestamp0);
+						}
+						if (Object.prototype.hasOwnProperty.call(timestampobj, timestamp1)) {
+							timestampobj[timestamp1] = true;
+							timestamps.push(timestamp1);
+						}
+					}
+				} else {
+					for (j = 0, jlen = labels.length; j < jlen; ++j) {
+						timestamps.push(labels[j]);
+					}
+					datasets[i] = labels.slice(0);
+				}
+			} else {
+				datasets[i] = [];
+			}
+		}
 
-        min = parse(me, timeOpts.min) || min;
-        max = parse(me, timeOpts.max) || max;
+		// for timeline do not consider labels for min/max
+		// if (labels.length) {
+		// 	// Sort labels **after** data have been converted
+		// 	labels = arrayUnique(labels).sort(sorter);
+		// 	min = Math.min(min, labels[0]);
+		// 	max = Math.max(max, labels[labels.length - 1]);
+		// }
 
-        // In case there is no valid min/max, var's use today limits
-        min = min === MAX_INTEGER ? +moment().startOf('day') : min;
-        max = max === MIN_INTEGER ? +moment().endOf('day') + 1 : max;
+		if (timestamps.length) {
+			timestamps = arrayUnique(timestamps).sort(sorter);
+			min = Math.min(min, timestamps[0]);
+			max = Math.max(max, timestamps[timestamps.length - 1]);
+		}
 
-        // Make sure that max is strictly higher than min (required by the lookup table)
-        me.min = Math.min(min, max);
-        me.max = Math.max(min + 1, max);
+		min = parse(me, timeOpts.min) || min;
+		max = parse(me, timeOpts.max) || max;
 
-        // PRIVATE
-        me._horizontal = me.isHorizontal();
-        me._table = [];
-        me._timestamps = {
-            data: timestamps,
-            datasets: datasets,
-            labels: []
-        };
-    },
+		// In case there is no valid min/max, set limits based on unit time option
+		min = min === MAX_INTEGER ? +adapter.startOf(Date.now(), unit) : min;
+		max = max === MIN_INTEGER ? +adapter.endOf(Date.now(), unit) + 1 : max;
+
+		// Make sure that max is strictly higher than min (required by the lookup table)
+		me.min = Math.min(min, max);
+		me.max = Math.max(min + 1, max);
+
+		// PRIVATE
+		me._horizontal = me.isHorizontal();
+		me._table = [];
+		me._timestamps = {
+			data: timestamps,
+			datasets: datasets,
+			labels: labels
+		};
+	},
+
 });
 
 Chart.scaleService.registerScaleType('timeline', TimelineScale, TimelineScaleConfig);
