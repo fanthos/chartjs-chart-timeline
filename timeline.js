@@ -44,56 +44,58 @@
         }
     };
 
-
-    /**
-     * Convert the given value to a moment object using the given time options.
-     * @see http://momentjs.com/docs/#/parsing/
-     */
-    function momentify(value, options) {
+    function toTimestamp(scale, input) {
+    	var adapter = scale._adapter;
+    	var options = scale.options.time;
         var parser = options.parser;
-        var format = options.parser || options.format;
+    	var format = parser || options.format;
+    	var value = input;
 
         if (typeof parser === 'function') {
-            return parser(value);
+    		value = parser(value);
         }
 
-        if (typeof value === 'string' && typeof format === 'string') {
-            return moment(value, format);
+    	// Only parse if its not a timestamp already
+    	if (!helpers.isFinite(value)) {
+    		value = typeof format === 'string'
+    			? adapter.parse(value, format)
+    			: adapter.parse(value);
         }
 
-        if (!(value instanceof moment)) {
-            value = moment(value);
+    	if (value !== null) {
+    		return +value;
         }
 
-        if (value.isValid()) {
-            return value;
-        }
+    	// Labels are in an incompatible format and no `parser` has been provided.
+    	// The user might still use the deprecated `format` option for parsing.
+    	if (!parser && typeof format === 'function') {
+    		value = format(input);
 
-        // Labels are in an incompatible moment format and no `parser` has been provided.
-        // The user might still use the deprecated `format` option to convert his inputs.
-        if (typeof format === 'function') {
-            return format(value);
+    		// `format` could return something else than a timestamp, if so, parse it
+    		if (!helpers.isFinite(value)) {
+    			value = adapter.parse(value);
+        }
         }
 
         return value;
     }
 
-    function parse(input, scale) {
+    function parse(scale, input) {
         if (helpers.isNullOrUndef(input)) {
             return null;
         }
 
         var options = scale.options.time;
-        var value = momentify(scale.getRightValue(input), options);
-        if (!value.isValid()) {
-            return null;
+    	var value = toTimestamp(scale, scale.getRightValue(input));
+    	if (value === null) {
+    		return value;
         }
 
         if (options.round) {
-            value.startOf(options.round);
+    		value = +scale._adapter.startOf(value, options.round);
         }
 
-        return value.valueOf();
+    	return value;
     }
 
     var MIN_INTEGER = Number.MIN_SAFE_INTEGER || -9007199254740991;
@@ -121,8 +123,8 @@
                     datasets[i] = [];
 
                     for (j = 0, jlen = data.length; j < jlen; ++j) {
-                        timestamp0 = parse(data[j][elemOpts.keyStart], me);
-                        timestamp1 = parse(data[j][elemOpts.keyEnd], me);
+                        timestamp0 = parse(me, data[j][elemOpts.keyStart]);
+                        timestamp1 = parse(me, data[j][elemOpts.keyEnd]);
                         if (timestamp0 > timestamp1) {
                             [timestamp0, timestamp1] = [timestamp1, timestamp0];
                         }
@@ -153,8 +155,8 @@
                 });
             }
 
-            min = parse(timeOpts.min, me) || min;
-            max = parse(timeOpts.max, me) || max;
+            min = parse(me, timeOpts.min) || min;
+            max = parse(me, timeOpts.max) || max;
 
             // In case there is no valid min/max, var's use today limits
             min = min === MAX_INTEGER ? +moment().startOf('day') : min;
@@ -313,7 +315,7 @@
 
                 ctx.globalAlpha = oldAlpha;
                 ctx.globalCompositeOperation = oldOperation;
-                if (showText) {
+                if (options.showText) {
                     ctx.beginPath();
                     var textRect = ctx.measureText(vm.text);
                     if ((textRect.width > 0) && (textRect.width + options.textPadding + 2 < vm.width)) {
