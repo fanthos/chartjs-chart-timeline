@@ -316,7 +316,7 @@
                 if (showText) {
                     ctx.beginPath();
                     var textRect = ctx.measureText(vm.text);
-                    if (textRect.width > 0 && textRect.width + options.textPadding + 2 < vm.width) {
+                    if ((textRect.width > 0) && (textRect.width + options.textPadding + 2 < vm.width)) {
                         if (options.font) {ctx.font = options.font;}                    ctx.fillStyle = vm.textColor;
                         ctx.lineWidth = 0;
                         ctx.strokeStyle = vm.textColor;
