@@ -3,7 +3,7 @@ import moment from 'moment';
 
 var helpers = Chart.helpers;
 
-var TimelineConfig = {
+var TimelineScaleConfig = {
     position: 'bottom',
 
     tooltips: {
@@ -186,7 +186,7 @@ var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
     },
 });
 
-Chart.scaleService.registerScaleType('timeline', TimelineScale, TimelineConfig);
+Chart.scaleService.registerScaleType('timeline', TimelineScale, TimelineScaleConfig);
 
 Chart.controllers.timeline = Chart.controllers.bar.extend({
 
@@ -419,7 +419,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 	_resolveDataElementOptions: function(element, index) {
 
         // TODO revert to standard _resolveDataElementOptions from datasetcontroller
-        
+
         var resolve = helpers.options.resolve;
         // copied from dataset controller
         var me = this;
