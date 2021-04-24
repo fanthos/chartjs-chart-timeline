@@ -217,6 +217,50 @@ var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
 		};
 	},
 
+    getPixelForValue: function(value, index, datasetIndex) {
+		var me = this;
+		var time = null;
+
+		if (index !== undefined && datasetIndex !== undefined) {
+			time = me._timestamps.datasets[datasetIndex][index];
+		}
+
+		if (time === null) {
+			time = parse(me, value);
+		}
+
+		if (time !== null) {
+			return me.getPixelForOffset(time);
+		}
+	},
+
+    /**
+	 * @private
+	 */
+	_parseValue: function(value) {
+        var start, end, min, max;
+
+		if (helpers.isArray(value)) {
+			start = +this.getRightValue(parse(this, value[0]));
+			end = +this.getRightValue(parse(this, value[1]));
+			min = Math.min(start, end);
+			max = Math.max(start, end);
+		} else {
+			value = +this.getRightValue(parse(me, value));
+			start = undefined;
+			end = value;
+			min = value;
+			max = value;
+		}
+
+		return {
+			min: min,
+			max: max,
+			start: start,
+			end: end
+		};
+	},
+
 });
 
 Chart.scaleService.registerScaleType('timeline', TimelineScale, TimelineScaleConfig);
