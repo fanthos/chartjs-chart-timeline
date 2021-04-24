@@ -453,6 +453,49 @@
         /**
     	 * @private
     	 */
+         _resolveElementOptions: function(element, index) {
+            var me = this;
+    		var chart = me.chart;
+    		var dataset = me.getDataset();
+    		var custom = element.custom || {};
+    		var options = chart.options.elements || {};
+
+            var values = {};
+            var i, ilen, key;
+
+    		// Scriptable options
+    		var context = {
+    			chart: chart,
+    			dataIndex: index,
+    			dataset: dataset,
+    			datasetIndex: me.index
+    		};
+
+            var keys = [
+                'backgroundColor',
+                'borderColor',
+                'borderSkipped',
+                'borderWidth',
+                'hoverBackgroundColor',
+                'hoverBorderColor',
+                'hoverBorderWidth'
+            ];
+
+    		for (i = 0, ilen = keys.length; i < ilen; ++i) {
+    			key = keys[i];
+    			values[key] = helpers.options.resolve([
+    				custom[key],
+    				dataset[key],
+    				options[key]
+    			], context, index);
+    		}
+
+    		return values;
+    	},
+
+        /**
+    	 * @private
+    	 */
     	_resolveDataElementOptions: function(element, index) {
 
             // TODO revert to standard _resolveDataElementOptions from datasetcontroller
