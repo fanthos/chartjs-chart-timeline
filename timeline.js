@@ -11,7 +11,6 @@
 
     var TimelineScaleConfig = {
         position: 'bottom',
-
         tooltips: {
             mode: 'nearest',
         },
@@ -193,7 +192,7 @@
             'hoverBorderWidth',
     		'barThickness',
     		'maxBarThickness',
-    		'minBarWidth',   // difference to Chart.controllers.bar.minBarLength necessary?
+    		'minBarLength',
             'textPadding',
             'showText',
             'keyValue',
@@ -216,20 +215,19 @@
                 right: x2,
                 bottom: y2
             };
-
         },
 
         update: function(reset) {
             var me = this;
             var meta = me.getMeta();
             var chartOpts = me.chart.options;
-            if (chartOpts.textPadding || chartOpts.minBarWidth ||
+            if (chartOpts.textPadding || chartOpts.minBarLength ||
                     chartOpts.showText || chartOpts.colorFunction) {
                 var elemOpts = me.chart.options.elements;
                 elemOpts.textPadding = chartOpts.textPadding || elemOpts.textPadding;
-                elemOpts.minBarWidth = chartOpts.minBarWidth || elemOpts.minBarWidth;
+                elemOpts.minBarLength = chartOpts.minBarLength || elemOpts.minBarLength;
                 elemOpts.colorFunction = chartOpts.colorFunction || elemOpts.colorFunction;
-                elemOpts.minBarWidth = chartOpts.minBarWidth || elemOpts.minBarWidth;
+                elemOpts.minBarLength = chartOpts.minBarLength || elemOpts.minBarLength;
                 if (Chart._tl_depwarn !== true) {
                     console.log('Timeline Chart: Configuration deprecated. Please check document on Github.');
                     Chart._tl_depwarn = true;
@@ -271,7 +269,7 @@
                 // the following are additional to regular bar
                 x: reset ?  x - width : x,   // Top left of rectangle
                 y: (y - (height / 2)) , // Top left of rectangle
-                width: Math.max(width, options.minBarWidth),
+                width: Math.max(width, options.minBarLength),
                 height: height,
                 base: x + width,
                 text: data[options.keyValue],
@@ -461,7 +459,7 @@
     		}
 
             // TODO merge global options
-            if (!options.keyStart) {options.keyStart = 0;}        if (!options.keyEnd) {options.keyEnd = 1;}        if (!options.keyValue) {options.keyValue = 2;}        if (!options.barThickness) {options.barThickness = 30;}        if (!options.maxBarThickness) {options.maxBarThickness = 60;}        if (!options.minBarWidth) {options.minBarWidth = 40;}        if (!options.showText) {options.showText = true;}        if (!options.textPadding) {options.textPadding = 4;}
+            if (!options.keyStart) {options.keyStart = 0;}        if (!options.keyEnd) {options.keyEnd = 1;}        if (!options.keyValue) {options.keyValue = 2;}        if (!options.barThickness) {options.barThickness = 30;}        if (!options.maxBarThickness) {options.maxBarThickness = 60;}        if (!options.minBarLength) {options.minBarLength = 40;}        if (!options.showText) {options.showText = true;}        if (!options.textPadding) {options.textPadding = 4;}
             if (info.cacheable) {
     			me._cachedDataOpts = Object.freeze(values);
     		}
@@ -477,9 +475,6 @@
 
     Chart.defaults.timeline = {
         elements: {
-            colorFunction: function() {
-                return helpers.color('black');
-            },
             backgroundColor: "gold",
             borderColor: "orange",
             borderWidth: 2,
@@ -488,7 +483,7 @@
             hoverBorderWidth: 1,
             showText: true,
             textPadding: 4,
-            minBarWidth: 1,
+            minBarLength: 5,
             keyStart: 0,
             keyEnd: 1,
             keyValue: 2
