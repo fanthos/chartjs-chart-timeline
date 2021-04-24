@@ -473,8 +473,8 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
         if (!options.keyStart) {options.keyStart = 0};
         if (!options.keyEnd) {options.keyEnd = 1};
         if (!options.keyValue) {options.keyValue = 2};
-        if (!options.barThickness) {options.barThickness = 30};
-        if (!options.maxBarThickness) {options.maxBarThickness = 60};
+        // if (!options.barThickness) {options.barThickness = 30};
+        // if (!options.maxBarThickness) {options.maxBarThickness = 60};
         if (!options.minBarLength) {options.minBarLength = 40};
         if (!options.showText) {options.showText = true};
         if (!options.textPadding) {options.textPadding = 4};
@@ -487,7 +487,21 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 		var valueOpts = me._getValueScale().options;
 
 		return values;
-	}
+    },
+
+	/**
+	 * @private
+	 */
+     _getValueScaleId: function() {
+		return this.getMeta().xAxisID;
+    },
+
+	/**
+	 * @private
+	 */
+	_getIndexScaleId: function() {
+		return this.getMeta().yAxisID;
+    }
 
 });
 
@@ -541,6 +555,8 @@ Chart.defaults.timeline = {
             type: 'category',
             position: 'left',
             barThickness : 20,
+            categoryPercentage: 0.9,
+            barPercentage: 0.7,
             offset: true,
             gridLines: {
                 display: true,
