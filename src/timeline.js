@@ -4,38 +4,39 @@ import moment from 'moment';
 var helpers = Chart.helpers;
 
 var TimelineScaleConfig = {
-    position: 'bottom',
-    tooltips: {
-        mode: 'nearest',
-    },
-    adapters: {},
-    time: {
-        parser: false, // false == a pattern string from http://momentjs.com/docs/#/parsing/string-format/ or a custom callback that converts its argument to a moment
-        format: false, // DEPRECATED false == date objects, moment object, callback or a pattern string from http://momentjs.com/docs/#/parsing/string-format/
-        unit: false, // false == automatic or override with week, month, year, etc.
-        round: false, // none, or override with week, month, year, etc.
-        displayFormat: false, // DEPRECATED
-        isoWeekday: false, // override week start day - see http://momentjs.com/docs/#/get-set/iso-weekday/
-        minUnit: 'millisecond',
-        distribution: 'linear',
-        bounds: 'data',
 
-        // defaults to unit's corresponding unitFormat below or override using pattern string from http://momentjs.com/docs/#/displaying/format/
-        displayFormats: {
-            millisecond: 'h:mm:ss.SSS a', // 11:20:01.123 AM,
-            second: 'h:mm:ss a', // 11:20:01 AM
-            minute: 'h:mm a', // 11:20 AM
-            hour: 'hA', // 5PM
-            day: 'MMM D', // Sep 4
-            week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
-            month: 'MMM YYYY', // Sept 2015
-            quarter: '[Q]Q - YYYY', // Q3
-            year: 'YYYY' // 2015
-        },
-    },
-    ticks: {
-        autoSkip: true
-    }
+	position: 'bottom',
+	tooltips: {
+		mode: 'nearest',
+	},
+	adapters: {},
+	time: {
+		parser: false, // false == a pattern string from http://momentjs.com/docs/#/parsing/string-format/ or a custom callback that converts its argument to a moment
+		format: false, // DEPRECATED false == date objects, moment object, callback or a pattern string from http://momentjs.com/docs/#/parsing/string-format/
+		unit: false, // false == automatic or override with week, month, year, etc.
+		round: false, // none, or override with week, month, year, etc.
+		displayFormat: false, // DEPRECATED
+		isoWeekday: false, // override week start day - see http://momentjs.com/docs/#/get-set/iso-weekday/
+		minUnit: 'millisecond',
+		distribution: 'linear',
+		bounds: 'data',
+
+		// defaults to unit's corresponding unitFormat below or override using pattern string from http://momentjs.com/docs/#/displaying/format/
+		displayFormats: {
+			millisecond: 'h:mm:ss.SSS a', // 11:20:01.123 AM,
+			second: 'h:mm:ss a', // 11:20:01 AM
+			minute: 'h:mm a', // 11:20 AM
+			hour: 'hA', // 5PM
+			day: 'MMM D', // Sep 4
+			week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
+			month: 'MMM YYYY', // Sept 2015
+			quarter: '[Q]Q - YYYY', // Q3
+			year: 'YYYY' // 2015
+		},
+	},
+	ticks: {
+		autoSkip: true
+	}
 };
 
 function sorter(a, b) {
@@ -116,22 +117,22 @@ var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
 
 var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
 
-    determineDataLimits: function() {
-        var me = this;
-        var chart = me.chart;
-        var adapter = me._adapter;
-        var timeOpts = me.options.time;
-        var unit = timeOpts.unit || 'day';
-        var min = MAX_INTEGER;
-        var max = MIN_INTEGER;
-        var timestamps = [];
-        var datasets = [];
-        var labels = [];
-        var i, j, ilen, jlen, data, timestamp;
-        var dataLabels = chart.data.labels || [];
+	determineDataLimits: function() {
+		var me = this;
+		var chart = me.chart;
+		var adapter = me._adapter;
+		var timeOpts = me.options.time;
+		var unit = timeOpts.unit || 'day';
+		var min = MAX_INTEGER;
+		var max = MIN_INTEGER;
+		var timestamps = [];
+		var datasets = [];
+		var labels = [];
+		var i, j, ilen, jlen, data, timestamp;
+		var dataLabels = chart.data.labels || [];
 		var elemOpts = me.chart.options.elements;
-        var timestamp0, timestamp1;
-        var timestampobj = {};
+		var timestamp0, timestamp1;
+		var timestampobj = {};
 
 		// Convert labels to timestamps
 		// for (i = 0, ilen = dataLabels.length; i < ilen; ++i) {
@@ -139,13 +140,13 @@ var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
 		// }
 
 		// Convert data to timestamps
-        // adapted for timeline which has two timestamps instead of one
+		// adapted for timeline which has two timestamps instead of one
 		for (i = 0, ilen = (chart.data.datasets || []).length; i < ilen; ++i) {
 			if (chart.isDatasetVisible(i)) {
 				data = chart.data.datasets[i].data;
 
 				// Let's consider that all data have the same format.
-                // for timeline data is in arrays like [start, end, label]
+				// for timeline data is in arrays like [start, end, label]
 				if (helpers.isArray(data[0])) {
 					datasets[i] = [];
 
@@ -217,12 +218,12 @@ var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
 		};
 	},
 
-    getPixelForValue: function(value, index, datasetIndex) {
+	getPixelForValue: function(value, index, datasetIndex, valueIndex) {
 		var me = this;
 		var time = null;
 
-		if (index !== undefined && datasetIndex !== undefined) {
-			time = me._timestamps.datasets[datasetIndex][index];
+		if (index !== undefined && datasetIndex !== undefined && valueIndex !== undefined) {
+			time = me._timestamps.datasets[datasetIndex][index][valueIndex];
 		}
 
 		if (time === null) {
@@ -234,11 +235,11 @@ var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
 		}
 	},
 
-    /**
+	/**
 	 * @private
 	 */
 	_parseValue: function(value) {
-        var start, end, min, max;
+		var start, end, min, max;
 
 		if (helpers.isArray(value)) {
 			start = +this.getRightValue(parse(this, value[0]));
@@ -265,242 +266,334 @@ var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
 
 Chart.scaleService.registerScaleType('timeline', TimelineScale, TimelineScaleConfig);
 
+// copied from controller.bar, not modified
+function swap(orig, v1, v2) {
+	return orig === v1 ? v2 : orig === v2 ? v1 : orig;
+}
+
+// copied from controller.bar, not modified
+function parseBorderSkipped(vm) {
+	var edge = vm.borderSkipped;
+	var res = {};
+
+	if (!edge) {
+		return res;
+	}
+
+	if (vm.horizontal) {
+		if (vm.base > vm.x) {
+			edge = swap(edge, 'left', 'right');
+		}
+	} else if (vm.base < vm.y) {
+		edge = swap(edge, 'bottom', 'top');
+	}
+
+	res[edge] = true;
+	return res;
+}
+
+// copied from controller.bar, not modified
+function parseBorderWidth(vm, maxW, maxH) {
+	var value = vm.borderWidth;
+	var skip = parseBorderSkipped(vm);
+	var t, r, b, l;
+
+	if (helpers.isObject(value)) {
+		t = +value.top || 0;
+		r = +value.right || 0;
+		b = +value.bottom || 0;
+		l = +value.left || 0;
+	} else {
+		t = r = b = l = +value || 0;
+	}
+
+	return {
+		t: skip.top || (t < 0) ? 0 : t > maxH ? maxH : t,
+		r: skip.right || (r < 0) ? 0 : r > maxW ? maxW : r,
+		b: skip.bottom || (b < 0) ? 0 : b > maxH ? maxH : b,
+		l: skip.left || (l < 0) ? 0 : l > maxW ? maxW : l
+	};
+}
+
+// modified from original controller.bar
+function getBarBounds(vm) {
+	return {
+		left: vm.x,
+		top: vm.y,
+		right: vm.x + vm.width,
+		bottom: vm.y + vm.height
+	};
+}
+
+// copied from controller.bar, not modified
+function boundingRects(vm) {
+	var bounds = getBarBounds(vm);
+	var width = bounds.right - bounds.left;
+	var height = bounds.bottom - bounds.top;
+	var border = parseBorderWidth(vm, width / 2, height / 2);
+
+	return {
+		outer: {
+			x: bounds.left,
+			y: bounds.top,
+			w: width,
+			h: height
+		},
+		inner: {
+			x: bounds.left + border.l,
+			y: bounds.top + border.t,
+			w: width - border.l - border.r,
+			h: height - border.t - border.b
+		}
+	};
+}
+
+/**
+ * Computes the "optimal" sample size to maintain bars equally sized while preventing overlap.
+ * @private
+ */
+ function computeMinSampleSize(scale, pixels) {
+	var min = scale._length;
+	var prev, curr, i, ilen;
+
+	for (i = 1, ilen = pixels.length; i < ilen; ++i) {
+		min = Math.min(min, Math.abs(pixels[i] - pixels[i - 1]));
+	}
+
+	for (i = 0, ilen = scale.getTicks().length; i < ilen; ++i) {
+		curr = scale.getPixelForTick(i);
+		min = i > 0 ? Math.min(min, Math.abs(curr - prev)) : min;
+		prev = curr;
+	}
+
+	return min;
+}
+
+/**
+ * Computes an "ideal" category based on the absolute bar thickness or, if undefined or null,
+ * uses the smallest interval (see computeMinSampleSize) that prevents bar overlapping. This
+ * mode currently always generates bars equally sized (until we introduce scriptable options?).
+ * @private
+ */
+ function computeFitCategoryTraits(index, ruler, options) {
+	var thickness = options.barThickness;
+	var count = ruler.stackCount;
+	var curr = ruler.pixels[index];
+	var min = helpers.isNullOrUndef(thickness)
+		? computeMinSampleSize(ruler.scale, ruler.pixels)
+		: -1;
+	var size, ratio;
+
+	if (helpers.isNullOrUndef(thickness)) {
+		size = min * options.categoryPercentage;
+		ratio = options.barPercentage;
+	} else {
+		// When bar thickness is enforced, category and bar percentages are ignored.
+		// Note(SB): we could add support for relative bar thickness (e.g. barThickness: '50%')
+		// and deprecate barPercentage since this value is ignored when thickness is absolute.
+		size = thickness * count;
+		ratio = 1;
+	}
+
+	// only modification for timeline, there are no stacks
+	count = 1;
+
+	return {
+		chunk: size / count,
+		ratio: ratio,
+		start: curr - (size / 2)
+	};
+}
+
+/**
+ * Computes an "optimal" category that globally arranges bars side by side (no gap when
+ * percentage options are 1), based on the previous and following categories. This mode
+ * generates bars with different widths when data are not evenly spaced.
+ * @private
+ */
+ function computeFlexCategoryTraits(index, ruler, options) {
+	var pixels = ruler.pixels;
+	var curr = pixels[index];
+	var prev = index > 0 ? pixels[index - 1] : null;
+	var next = index < pixels.length - 1 ? pixels[index + 1] : null;
+	var percent = options.categoryPercentage;
+	var start, size;
+
+	if (prev === null) {
+		// first data: its size is double based on the next point or,
+		// if it's also the last data, we use the scale size.
+		prev = curr - (next === null ? ruler.end - ruler.start : next - curr);
+	}
+
+	if (next === null) {
+		// last data: its size is also double based on the previous point.
+		next = curr + curr - prev;
+	}
+
+	start = curr - (curr - Math.min(prev, next)) / 2 * percent;
+	size = Math.abs(next - prev) / 2 * percent;
+
+	return {
+		chunk: size / ruler.stackCount,
+		ratio: options.barPercentage,
+		start: start
+	};
+}
+
 Chart.controllers.timeline = Chart.controllers.bar.extend({
 
-    /**
+	/**
 	 * @private
 	 */
-     _dataElementOptions: [
+	 _dataElementOptions: [
 		'backgroundColor',
 		'borderColor',
 		'borderSkipped',
 		'borderWidth',
-        'hoverBackgroundColor',
-        'hoverBorderColor',
-        'hoverBorderWidth',
+		'hoverBackgroundColor',
+		'hoverBorderColor',
+		'hoverBorderWidth',
 		'barThickness',
 		'maxBarThickness',
 		'minBarLength',
-        'textPadding',
-        'showText',
-        'keyValue',
-        'keyStart',
-        'keyEnd'
+		'textPadding',
+		'showText',
+		'keyValue',
+		'keyStart',
+		'keyEnd'
 	],
 
-    getBarBounds : function (bar) {
-        var vm =   bar._view;
-        var x1, x2, y1, y2;
+	update: function(reset) {
+		var me = this;
+		var meta = me.getMeta();
+		var chartOpts = me.chart.options;
+		if (chartOpts.textPadding || chartOpts.minBarLength ||
+				chartOpts.showText || chartOpts.colorFunction) {
+			var elemOpts = me.chart.options.elements;
+			elemOpts.textPadding = chartOpts.textPadding || elemOpts.textPadding;
+			elemOpts.minBarLength = chartOpts.minBarLength || elemOpts.minBarLength;
+			elemOpts.colorFunction = chartOpts.colorFunction || elemOpts.colorFunction;
+			elemOpts.minBarLength = chartOpts.minBarLength || elemOpts.minBarLength;
+			if (Chart._tl_depwarn !== true) {
+				console.log('Timeline Chart: Configuration deprecated. Please check document on Github.');
+				Chart._tl_depwarn = true;
+			}
+		}
 
-        x1 = vm.x;
-        x2 = vm.x + vm.width;
-        y1 = vm.y;
-        y2 = vm.y + vm.height;
+		helpers.each(meta.data, function(rectangle, index) {
+			me.updateElement(rectangle, index, reset);
+		}, me);
+	},
 
-        return {
-            left : x1,
-            top: y1,
-            right: x2,
-            bottom: y2
-        };
-    },
+	_updateElementGeometry: function(rectangle, index, reset, options) {
+		var me = this;
 
-    update: function(reset) {
-        var me = this;
-        var meta = me.getMeta();
-        var chartOpts = me.chart.options;
-        if (chartOpts.textPadding || chartOpts.minBarLength ||
-                chartOpts.showText || chartOpts.colorFunction) {
-            var elemOpts = me.chart.options.elements;
-            elemOpts.textPadding = chartOpts.textPadding || elemOpts.textPadding;
-            elemOpts.minBarLength = chartOpts.minBarLength || elemOpts.minBarLength;
-            elemOpts.colorFunction = chartOpts.colorFunction || elemOpts.colorFunction;
-            elemOpts.minBarLength = chartOpts.minBarLength || elemOpts.minBarLength;
-            if (Chart._tl_depwarn !== true) {
-                console.log('Timeline Chart: Configuration deprecated. Please check document on Github.');
-                Chart._tl_depwarn = true;
-            }
-        }
+		// call regular controller.bar.updateElement
+		Chart.controllers.bar.prototype._updateElementGeometry.apply(me, arguments);
 
-        helpers.each(meta.data, function(rectangle, index) {
-            me.updateElement(rectangle, index, reset);
-        }, me);
-    },
+		var data = me.getDataset().data[index];
+		var start = rectangle._xScale.getPixelForValue(data, index, me.index, options.keyStart || 0);
+		var stop = rectangle._xScale.getPixelForValue(data, index, me.index, options.keyEnd || 1);
+		var y = rectangle._yScale.getPixelForValue(me.index, me.index);
 
-    updateElement: function(rectangle, index, reset) {
-        var me = this;
-        var meta = me.getMeta();
-        var dataset = me.getDataset();
-        var options = me._resolveDataElementOptions(rectangle, index);
+		if (options.showText || true) {
+			rectangle._model.text = data[options.keyValue || 2];
+		} else {
+			rectangle._model.text = undefined;
+		}
+		rectangle._model.x = start;
+		rectangle._model.y = y;
+		rectangle._model.width = stop - start;
+		rectangle._model.textPadding = options.textPadding || 4;  // note ISSUE
 
-        var xScale = me.getScaleForId(meta.xAxisID);
-        var yScale = me.getScaleForId(meta.yAxisID);
-        var data = dataset.data[index];
-        var x = xScale.getPixelForValue(data[options.keyStart]);
-        var y = yScale.getPixelForValue(data, me.index, me.index);
-        var end = xScale.getPixelForValue(data[options.keyEnd]);
-        var width = end - x;
-        var ruler = me.getRuler(index);
-        var height = me.calculateBarHeight(ruler);
+		var ruler = me.getRuler(index);
+		// var height = me.calculateBarHeight(ruler);
 
-        rectangle._xScale = me.getScaleForId(meta.xAxisID);
-		rectangle._yScale = me.getScaleForId(meta.yAxisID);
-        rectangle._datasetIndex = me.index;
-        rectangle._index = index;
-        rectangle._model = {
-            backgroundColor: options.backgroundColor,
-            borderColor: options.borderColor,
-            borderSkipped: options.borderSkipped,
-            borderWidth: options.borderWidth,
-            datasetLabel: dataset.label,
-            label: me.chart.data.labels[index],
-            // the following are additional to regular bar
-            x: reset ?  x - width : x,   // Top left of rectangle
-            y: (y - (height / 2)) , // Top left of rectangle
-            width: Math.max(width, options.minBarLength),
-            height: height,
-            base: x + width,
-            text: data[options.keyValue],
-            textColor: (helpers.color(options.backgroundColor).luminosity()) > 0.5 ? '#000000' : '#ffffff',
-        };
+		rectangle.draw = function() {
+			// cannot use prototype draw because boundingRects is miscomputed
+			// Chart.elements.Rectangle.prototype.draw.apply(this, arguments);
+			// so copied here from controller.bar
+			var ctx = this._chart.ctx;
+			var vm = this._view;
+			var rects = boundingRects(vm);
+			var outer = rects.outer;
+			var inner = rects.inner;
 
-        var text = data[options.keyValue];
-        var showText = options.showText;
+			ctx.fillStyle = vm.backgroundColor;
+			ctx.fillRect(outer.x, outer.y, outer.w, outer.h);
 
-        // TO DO: how to integrate existing color function?
-        // e.g. function overrides dataset/element option if return value is not null?
-        // var color = helpers.color(elemOpts.colorFunction(text, data, dataset, index));
+			if (outer.w === inner.w && outer.h === inner.h) {
+				return;
+			}
 
-        rectangle.draw = function() {
-            var ctx = this._chart.ctx;
-            var vm = this._view;
-            var oldAlpha = ctx.globalAlpha;
-            var oldOperation = ctx.globalCompositeOperation;
+			ctx.save();
+			ctx.beginPath();
+			ctx.rect(outer.x, outer.y, outer.w, outer.h);
+			ctx.clip();
+			ctx.fillStyle = vm.borderColor;
+			ctx.rect(inner.x, inner.y, inner.w, inner.h);
+			ctx.fill('evenodd');
+			ctx.restore();
 
-            // Draw new rectangle with Alpha-Mix.
-            ctx.fillStyle = vm.backgroundColor;
-            ctx.lineWidth = vm.borderWidth;
-            ctx.globalCompositeOperation = 'destination-over';
-            ctx.fillRect(vm.x, vm.y, vm.width, vm.height);
+			if (vm.text) {
+				ctx.beginPath();
+				var textRect = ctx.measureText(vm.text);
+				if (textRect.width > 0) {
+					ctx.fillStyle = vm.textColor || vm.borderColor;
+					ctx.lineWidth = 0;
+					ctx.strokeStyle = vm.textColor;
+					ctx.textBaseline = 'middle';
+					ctx.fillText(vm.text, vm.x + vm.textPadding, vm.y + (vm.height) / 2);
+				}
+				ctx.fill();
+			}
+		};
+	},
 
-            ctx.globalAlpha = 0.5;
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.fillRect(vm.x, vm.y, vm.width, vm.height);
+	// draw
+	draw: function (ease) {
+		var easingDecimal = ease || 1;
+		var i, len;
+		var metaData = this.getMeta().data;
+		for (i = 0, len = metaData.length; i < len; i++)
+		{
+			metaData[i].transition(easingDecimal).draw();
+		}
+	},
 
-            var bw = vm.borderWidth || 0;
-            if (bw > 0) {
-                ctx.save();
-                ctx.beginPath();
-                ctx.rect(vm.x, vm.y, vm.width, vm.height);
-                ctx.clip();
-                ctx.fillStyle = vm.borderColor;
-                ctx.rect(vm.x + bw, vm.y + bw, vm.width - (2 * bw), vm.height - (2 * bw));
-                ctx.fill('evenodd');
-                ctx.restore();
-            }
+	// From controller.bar
+	calculateBarIndexPixels: function(datasetIndex, index, ruler, options) {
+		var me = this;
+		var range = options.barThickness === 'flex'
+			? computeFlexCategoryTraits(index, ruler, options)
+			: computeFitCategoryTraits(index, ruler, options);
 
-            ctx.globalAlpha = oldAlpha;
-            ctx.globalCompositeOperation = oldOperation;
-            if (options.showText) {
-                ctx.beginPath();
-                var textRect = ctx.measureText(vm.text);
-                if ((textRect.width > 0) && (textRect.width + options.textPadding + 2 < vm.width)) {
-                    if (options.font) {ctx.font = options.font};
-                    ctx.fillStyle = vm.textColor;
-                    ctx.lineWidth = 0;
-                    ctx.strokeStyle = vm.textColor;
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(vm.text, vm.x + options.textPadding, vm.y + (vm.height) / 2);
-                }
-                ctx.fill();
-            }
-        };
+		var stackIndex = me.getStackIndex(datasetIndex, me.getMeta().stack);
+		var center = range.start + (range.chunk * stackIndex) + (range.chunk / 2);
+		var size = Math.min(
+			helpers.valueOrDefault(options.maxBarThickness, Infinity),
+			range.chunk * range.ratio);
 
-        rectangle.inXRange = function (mouseX) {
-            var bounds = me.getBarBounds(this);
-            return mouseX >= bounds.left && mouseX <= bounds.right;
-        };
-        rectangle.tooltipPosition = function () {
-            var vm = this.getCenterPoint();
-            return {
-                x: vm.x ,
-                y: vm.y
-            };
-        };
+		return {
+			base: center - size / 2,
+			head: center + size / 2,
+			center: center,
+			size: size
+		};
+	},
 
-        rectangle.getCenterPoint = function () {
-            var vm = this._view;
-            var x, y;
-            x = vm.x + (vm.width / 2);
-            y = vm.y + (vm.height / 2);
-
-            return {
-                x : x,
-                y : y
-            };
-        };
-
-        rectangle.inRange = function (mouseX, mouseY) {
-            var inRange = false;
-
-            if(this._view)
-            {
-                var bounds = me.getBarBounds(this);
-                inRange = mouseX >= bounds.left && mouseX <= bounds.right &&
-                    mouseY >= bounds.top && mouseY <= bounds.bottom;
-            }
-            return inRange;
-        };
-
-        rectangle.pivot();
-    },
-
-    getBarCount: function() {
-        var me = this;
-        var barCount = 0;
-        helpers.each(me.chart.data.datasets, function(dataset, datasetIndex) {
-            var meta = me.chart.getDatasetMeta(datasetIndex);
-            if (meta.bar && me.chart.isDatasetVisible(datasetIndex)) {
-                ++barCount;
-            }
-        }, me);
-        return barCount;
-    },
-
-
-    // draw
-    draw: function (ease) {
-        var easingDecimal = ease || 1;
-        var i, len;
-        var metaData = this.getMeta().data;
-        for (i = 0, len = metaData.length; i < len; i++)
-        {
-            metaData[i].transition(easingDecimal).draw();
-        }
-    },
-
-    // From controller.bar
-    calculateBarHeight: function(ruler) {
-        var me = this;
-        var yScale = me.getScaleForId(me.getMeta().yAxisID);
-        if (yScale.options.barThickness) {
-            return yScale.options.barThickness;
-        }
-        return yScale.options.stacked ? ruler.categoryHeight : ruler.barHeight;
-    },
-
-    /**
+	/**
 	 * @private
 	 */
-     _resolveElementOptions: function(element, index) {
-        var me = this;
+	 _resolveElementOptions: function(element, index) {
+		var me = this;
 		var chart = me.chart;
 		var dataset = me.getDataset();
 		var custom = element.custom || {};
 		var options = chart.options.elements || {};
 
-        var values = {};
-        var i, ilen, key;
+		var values = {};
+		var i, ilen, key;
 
 		// Scriptable options
 		var context = {
@@ -510,15 +603,15 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 			datasetIndex: me.index
 		};
 
-        var keys = [
-            'backgroundColor',
-            'borderColor',
-            'borderSkipped',
-            'borderWidth',
-            'hoverBackgroundColor',
-            'hoverBorderColor',
-            'hoverBorderWidth'
-        ]
+		var keys = [
+			'backgroundColor',
+			'borderColor',
+			'borderWidth',
+			'borderSkipped',
+			'hoverBackgroundColor',
+			'hoverBorderColor',
+			'hoverBorderWidth'
+		]
 
 		for (i = 0, ilen = keys.length; i < ilen; ++i) {
 			key = keys[i];
@@ -532,173 +625,95 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 		return values;
 	},
 
-    /**
-	 * @private
-	 */
-	_resolveDataElementOptions: function(element, index) {
-
-        // TODO revert to standard _resolveDataElementOptions from datasetcontroller
-
-        var resolve = helpers.options.resolve;
-        // copied from dataset controller
-        var me = this;
-		var custom = element && element.custom;
-		var cached = me._cachedDataOpts;
-		if (cached && !custom) {
-			return cached;
-		}
-		var chart = me.chart;
-		var datasetOpts = me._config;
-		var options = chart.options.elements[me.dataElementType.prototype._type] || {};
-		var elementOptions = me._dataElementOptions;
-		var values = {};
-
-		// Scriptable options
-		var context = {
-			chart: chart,
-			dataIndex: index,
-			dataset: me.getDataset(),
-			datasetIndex: me.index
-		};
-
-		// `resolve` sets cacheable to `false` if any option is indexed or scripted
-		var info = {cacheable: !custom};
-
-		var keys, i, ilen, key;
-
-		custom = custom || {};
-
-		if (helpers.isArray(elementOptions)) {
-			for (i = 0, ilen = elementOptions.length; i < ilen; ++i) {
-				key = elementOptions[i];
-				values[key] = resolve([
-					custom[key],
-					datasetOpts[key],
-					options[key]
-				], context, index, info);
-			}
-		} else {
-			keys = Object.keys(elementOptions);
-			for (i = 0, ilen = keys.length; i < ilen; ++i) {
-				key = keys[i];
-				values[key] = resolve([
-					custom[key],
-					datasetOpts[elementOptions[key]],
-					datasetOpts[key],
-					options[key]
-				], context, index, info);
-			}
-		}
-
-        // TODO merge global options
-        if (!options.keyStart) {options.keyStart = 0};
-        if (!options.keyEnd) {options.keyEnd = 1};
-        if (!options.keyValue) {options.keyValue = 2};
-        // if (!options.barThickness) {options.barThickness = 30};
-        // if (!options.maxBarThickness) {options.maxBarThickness = 60};
-        if (!options.minBarLength) {options.minBarLength = 40};
-        if (!options.showText) {options.showText = true};
-        if (!options.textPadding) {options.textPadding = 4};
-
-        if (info.cacheable) {
-			me._cachedDataOpts = Object.freeze(values);
-		}
-
-        var indexOpts = me._getIndexScale().options;
-		var valueOpts = me._getValueScale().options;
-
-		return values;
-    },
-
 	/**
 	 * @private
 	 */
-     _getValueScaleId: function() {
+	 _getValueScaleId: function() {
 		return this.getMeta().xAxisID;
-    },
+	},
 
 	/**
 	 * @private
 	 */
 	_getIndexScaleId: function() {
 		return this.getMeta().yAxisID;
-    }
+	}
 
 });
 
 
 Chart.defaults.timeline = {
-    elements: {
-        backgroundColor: "gold",
-        borderColor: "orange",
-        borderWidth: 2,
-        hoverBackgroundColor: "orange",
-        hoverBorderColor: "red",
-        hoverBorderWidth: 1,
-        showText: true,
-        textPadding: 4,
-        minBarLength: 5,
-        keyStart: 0,
-        keyEnd: 1,
-        keyValue: 2
-    },
+	elements: {
+		backgroundColor: "gold",
+		borderColor: "orange",
+		borderWidth: 2,
+		hoverBackgroundColor: "orange",
+		hoverBorderColor: "red",
+		hoverBorderWidth: 1,
+		showText: true,
+		textPadding: 4,
+		minBarLength: 5,
+		keyStart: 0,
+		keyEnd: 1,
+		keyValue: 2
+	},
 
-    layout: {
-        padding: {
-            left: 0,
-            right: 0,
-            top: 0,
-            bottom: 0
-        }
-    },
+	layout: {
+		padding: {
+			left: 0,
+			right: 0,
+			top: 0,
+			bottom: 0
+		}
+	},
 
-    legend: {
-        display: false
-    },
+	legend: {
+		display: false
+	},
 
-    scales: {
-        xAxes: [{
-            type: 'timeline',
-            position: 'bottom',
-            distribution: 'linear',
-            gridLines: {
-                display: true,
-                // offsetGridLines: true,
-                drawBorder: true,
-                drawTicks: true
-            },
-            ticks: {
-                maxRotation: 0
-            },
-            unit: 'day'
-        }],
-        yAxes: [{
-            type: 'category',
-            position: 'left',
-            barThickness : 20,
-            categoryPercentage: 0.9,
-            barPercentage: 0.7,
-            offset: true,
-            gridLines: {
-                display: true,
-                offsetGridLines: true,
-                drawBorder: true,
-                drawTicks: true
-            }
-        }]
-    },
-    tooltips: {
-        callbacks: {
-            title: function(tooltipItems, data) {
-                var elemOpts = this._chart.options.elements;
-                var d = data.labels[tooltipItems[0].datasetIndex]
-                return d;
-            },
-            label: function(tooltipItem, data) {
-                var elemOpts = this._chart.options.elements;
-                var d = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-                return [d[elemOpts.keyValue], moment(d[elemOpts.keyStart]).format('L LTS'), moment(d[elemOpts.keyEnd]).format('L LTS')];
-            }
-        }
-    }
+	scales: {
+		xAxes: [{
+			type: 'timeline',
+			position: 'bottom',
+			distribution: 'linear',
+			gridLines: {
+				display: true,
+				// offsetGridLines: true,
+				drawBorder: true,
+				drawTicks: true
+			},
+			ticks: {
+				maxRotation: 0
+			},
+			unit: 'day'
+		}],
+		yAxes: [{
+			type: 'category',
+			position: 'left',
+			// barThickness : 20,
+			categoryPercentage: 0.9,
+			barPercentage: 0.7,
+			offset: true,
+			gridLines: {
+				display: true,
+				offsetGridLines: true,
+				drawBorder: true,
+				drawTicks: true
+			}
+		}]
+	},
+	tooltips: {
+		callbacks: {
+			title: function(tooltipItems, data) {
+				var elemOpts = this._chart.options.elements;
+				var d = data.labels[tooltipItems[0].datasetIndex]
+				return d;
+			},
+			label: function(tooltipItem, data) {
+				var elemOpts = this._chart.options.elements;
+				var d = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+				return [d[elemOpts.keyValue], moment(d[elemOpts.keyStart]).format('L LTS'), moment(d[elemOpts.keyEnd]).format('L LTS')];
+			}
+		}
+	}
 };
