@@ -505,6 +505,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 		rectangle._model.y = y;
 		rectangle._model.width = stop - start;
 		rectangle._model.textPadding = options.textPadding || 4;  // note ISSUE
+		rectangle._model.textColor = options.textColor || Chart.defaults.global.defaultFontColor;
 
 		var ruler = me.getRuler(index);
 		// var height = me.calculateBarHeight(ruler);
@@ -536,16 +537,19 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 			ctx.restore();
 
 			if (vm.text) {
-				ctx.beginPath();
 				var textRect = ctx.measureText(vm.text);
 				if (textRect.width > 0) {
-					ctx.fillStyle = vm.textColor || vm.borderColor;
+					ctx.save();
+					ctx.beginPath();
+					ctx.rect(inner.x, inner.y, inner.w, inner.h);
+					ctx.clip();
+					ctx.fillStyle = vm.textColor;
 					ctx.lineWidth = 0;
 					ctx.strokeStyle = vm.textColor;
 					ctx.textBaseline = 'middle';
 					ctx.fillText(vm.text, vm.x + vm.textPadding, vm.y + (vm.height) / 2);
+					ctx.restore();
 				}
-				ctx.fill();
 			}
 		};
 	},
