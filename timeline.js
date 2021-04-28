@@ -390,6 +390,9 @@
 			: -1;
 		var size, ratio;
 
+		// only modification for timeline, there are no stacks
+		count = 1;
+
 		if (helpers.isNullOrUndef(thickness)) {
 			size = min * options.categoryPercentage;
 			ratio = options.barPercentage;
@@ -401,8 +404,9 @@
 			ratio = 1;
 		}
 
-		// only modification for timeline, there are no stacks
-		count = 1;
+		console.log('chunk: ' + (size / count)
+						+ ' ratio: ' + ratio
+						+ ' start: ' + (curr - (size / 2)));
 
 		return {
 			chunk: size / count,
@@ -626,7 +630,16 @@
 				'borderSkipped',
 				'hoverBackgroundColor',
 				'hoverBorderColor',
-				'hoverBorderWidth'
+				'hoverBorderWidth',
+				'barThickness',
+				'maxBarThickness',
+				'minBarLength',
+				'textPadding',
+				'textColor',
+				'showText',
+				'keyValue',
+				'keyStart',
+				'keyEnd'
 			];
 
 			for (i = 0, ilen = keys.length; i < ilen; ++i) {
