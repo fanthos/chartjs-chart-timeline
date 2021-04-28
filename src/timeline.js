@@ -574,6 +574,44 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 				}
 			}
 		};
+
+		rectangle.inXRange = function (mouseX) {
+			var bounds = getBarBounds(this._view);
+			return mouseX >= bounds.left && mouseX <= bounds.right;
+		};
+
+		rectangle.tooltipPosition = function () {
+			var vm = this.getCenterPoint();
+			return {
+				x: vm.x ,
+				y: vm.y
+			};
+		};
+
+		rectangle.getCenterPoint = function () {
+			var vm = this._view;
+			var x, y;
+			x = vm.x + (vm.width / 2);
+			y = vm.y + (vm.height / 2);
+
+			return {
+				x : x,
+				y : y
+			};
+		};
+
+		rectangle.inRange = function (mouseX, mouseY) {
+			var inRange = false;
+
+			if(this._view)
+			{
+				var bounds = getBarBounds(this._view);
+				inRange = mouseX >= bounds.left && mouseX <= bounds.right &&
+					mouseY >= bounds.top && mouseY <= bounds.bottom;
+			}
+			return inRange;
+		};
+
 	},
 
 	// draw
