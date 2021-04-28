@@ -580,14 +580,6 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 			return mouseX >= bounds.left && mouseX <= bounds.right;
 		};
 
-		rectangle.tooltipPosition = function () {
-			var vm = this.getCenterPoint();
-			return {
-				x: vm.x ,
-				y: vm.y
-			};
-		};
-
 		rectangle.getCenterPoint = function () {
 			var vm = this._view;
 			var x, y;
@@ -611,6 +603,24 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 			}
 			return inRange;
 		};
+
+		rectangle.getArea = function() {
+			var vm = this._view;
+
+			// return isVertical(vm)
+			return false
+				? vm.width * Math.abs(vm.y - vm.base)
+				: vm.height * Math.abs(vm.x - vm.base);
+		};
+
+		rectangle.tooltipPosition = function () {
+			var vm = this.getCenterPoint();
+
+			return {
+				x: vm.x ,
+				y: vm.y
+			};
+		}
 
 	},
 

@@ -586,14 +586,6 @@
 				return mouseX >= bounds.left && mouseX <= bounds.right;
 			};
 
-			rectangle.tooltipPosition = function () {
-				var vm = this.getCenterPoint();
-				return {
-					x: vm.x ,
-					y: vm.y
-				};
-			};
-
 			rectangle.getCenterPoint = function () {
 				var vm = this._view;
 				var x, y;
@@ -616,6 +608,22 @@
 						mouseY >= bounds.top && mouseY <= bounds.bottom;
 				}
 				return inRange;
+			};
+
+			rectangle.getArea = function() {
+				var vm = this._view;
+
+				// return isVertical(vm)
+				return vm.height * Math.abs(vm.x - vm.base);
+			};
+
+			rectangle.tooltipPosition = function () {
+				var vm = this.getCenterPoint();
+
+				return {
+					x: vm.x ,
+					y: vm.y
+				};
 			};
 
 		},
