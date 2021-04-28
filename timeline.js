@@ -510,21 +510,31 @@
 			var data = me.getDataset().data[index];
 			var start = rectangle._xScale.getPixelForValue(data, index, me.index, options.keyStart || 0);
 			var stop = rectangle._xScale.getPixelForValue(data, index, me.index, options.keyEnd || 1);
+			var labelText = data[options.keyValue || 2];
+			var ruler = me.getRuler(index);
+			var pixels = me.calculateBarIndexPixels(me.index, index, ruler, options);
 			var y = rectangle._yScale.getPixelForValue(me.index, me.index);
+			// var height = me.calculateBarHeight(ruler);
 
-			if (options.showText || true) {
-				rectangle._model.text = data[options.keyValue || 2];
-			} else {
-				rectangle._model.text = undefined;
-			}
 			rectangle._model.x = start;
-			rectangle._model.y = y;
 			rectangle._model.width = stop - start;
+			rectangle._model.y = y;
+			rectangle._model.height = pixels.size;
+
+			console.log('base: ' + pixels.base
+						+ ' head: ' + pixels.head
+						+ ' center: ' + pixels.center
+						+ ' size: ' + pixels.size
+						+ ' label: ' + labelText);
+
 			rectangle._model.textPadding = options.textPadding || 4;  // note ISSUE
 			rectangle._model.textColor = options.textColor || Chart.defaults.global.defaultFontColor;
 
-			var ruler = me.getRuler(index);
-			// var height = me.calculateBarHeight(ruler);
+			if (options.showText || true) {
+				rectangle._model.text = labelText;
+			} else {
+				rectangle._model.text = undefined;
+			}
 
 			rectangle.draw = function() {
 				// cannot use prototype draw because boundingRects is miscomputed
