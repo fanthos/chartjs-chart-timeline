@@ -404,9 +404,9 @@
 			ratio = 1;
 		}
 
-		console.log('chunk: ' + (size / count)
-						+ ' ratio: ' + ratio
-						+ ' start: ' + (curr - (size / 2)));
+		// console.log('chunk: ' + (size / count)
+		// 				+ ' ratio: ' + ratio
+		// 				+ ' start: ' + (curr - (size / 2)));
 
 		return {
 			chunk: size / count,
@@ -523,11 +523,11 @@
 			rectangle._model.y = y - (pixels.size / 2);
 			rectangle._model.height = pixels.size;
 
-			console.log('base: ' + pixels.base
-						+ ' head: ' + pixels.head
-						+ ' center: ' + pixels.center
-						+ ' size: ' + pixels.size
-						+ ' label: ' + labelText);
+			// console.log('base: ' + pixels.base
+			// 			+ ' head: ' + pixels.head
+			// 			+ ' center: ' + pixels.center
+			// 			+ ' size: ' + pixels.size
+			// 			+ ' label: ' + labelText);
 
 			rectangle._model.textPadding = options.textPadding || 4;  // note ISSUE
 			rectangle._model.textColor = options.textColor || Chart.defaults.global.defaultFontColor;
