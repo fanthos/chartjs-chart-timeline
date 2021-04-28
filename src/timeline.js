@@ -453,7 +453,9 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 		'hoverBackgroundColor',
 		'hoverBorderColor',
 		'hoverBorderWidth',
+		'barPercentage',
 		'barThickness',
+		'categoryPercentage',
 		'maxBarThickness',
 		'minBarLength',
 		'textPadding',
@@ -465,24 +467,28 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 
 	update: function(reset) {
 		var me = this;
-		var meta = me.getMeta();
-		var chartOpts = me.chart.options;
-		if (chartOpts.textPadding || chartOpts.minBarLength ||
-				chartOpts.showText || chartOpts.colorFunction) {
-			var elemOpts = me.chart.options.elements;
-			elemOpts.textPadding = chartOpts.textPadding || elemOpts.textPadding;
-			elemOpts.minBarLength = chartOpts.minBarLength || elemOpts.minBarLength;
-			elemOpts.colorFunction = chartOpts.colorFunction || elemOpts.colorFunction;
-			elemOpts.minBarLength = chartOpts.minBarLength || elemOpts.minBarLength;
-			if (Chart._tl_depwarn !== true) {
-				console.log('Timeline Chart: Configuration deprecated. Please check document on Github.');
-				Chart._tl_depwarn = true;
-			}
-		}
+		var rects = me.getMeta().data;
+		var i, ilen;
 
-		helpers.each(meta.data, function(rectangle, index) {
-			me.updateElement(rectangle, index, reset);
-		}, me);
+		me._ruler = me.getRuler();
+
+		// var chartOpts = me.chart.options;
+		// if (chartOpts.textPadding || chartOpts.minBarLength ||
+		// 		chartOpts.showText || chartOpts.colorFunction) {
+		// 	var elemOpts = me.chart.options.elements;
+		// 	elemOpts.textPadding = chartOpts.textPadding || elemOpts.textPadding;
+		// 	elemOpts.minBarLength = chartOpts.minBarLength || elemOpts.minBarLength;
+		// 	elemOpts.colorFunction = chartOpts.colorFunction || elemOpts.colorFunction;
+		// 	elemOpts.minBarLength = chartOpts.minBarLength || elemOpts.minBarLength;
+		// 	if (Chart._tl_depwarn !== true) {
+		// 		console.log('Timeline Chart: Configuration deprecated. Please check document on Github.');
+		// 		Chart._tl_depwarn = true;
+		// 	}
+		// }
+
+		for (i = 0, ilen = rects.length; i < ilen; ++i) {
+			me.updateElement(rects[i], i, reset);
+		}
 	},
 
 	_updateElementGeometry: function(rectangle, index, reset, options) {
@@ -645,12 +651,21 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 
 });
 
+Chart.defaults._set('global', {
+	datasets: {
+		timeline: {
+			categoryPercentage: 0.8,
+			barPercentage: 0.9
+		}
+	}
+});
 
 Chart.defaults.timeline = {
 	elements: {
 		backgroundColor: "gold",
 		borderColor: "orange",
 		borderWidth: 2,
+		borderSkipped: 'left',
 		hoverBackgroundColor: "orange",
 		hoverBorderColor: "red",
 		hoverBorderWidth: 1,
@@ -659,7 +674,9 @@ Chart.defaults.timeline = {
 		minBarLength: 5,
 		keyStart: 0,
 		keyEnd: 1,
-		keyValue: 2
+		keyValue: 2,
+		categoryPercentage: 0.9,
+		barPercentage: 0.7
 	},
 
 	layout: {
@@ -694,9 +711,6 @@ Chart.defaults.timeline = {
 		yAxes: [{
 			type: 'category',
 			position: 'left',
-			// barThickness : 20,
-			categoryPercentage: 0.9,
-			barPercentage: 0.7,
 			offset: true,
 			gridLines: {
 				display: true,
