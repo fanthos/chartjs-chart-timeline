@@ -513,12 +513,14 @@
 			var labelText = data[options.keyValue || 2];
 			var ruler = me.getRuler(index);
 			var pixels = me.calculateBarIndexPixels(me.index, index, ruler, options);
+			// we're (mis)using some intrinsics of getPixelForValue here,
+			// giving the index instead of the value
 			var y = rectangle._yScale.getPixelForValue(me.index, me.index);
 			// var height = me.calculateBarHeight(ruler);
 
 			rectangle._model.x = start;
 			rectangle._model.width = stop - start;
-			rectangle._model.y = y;
+			rectangle._model.y = y - (pixels.size / 2);
 			rectangle._model.height = pixels.size;
 
 			console.log('base: ' + pixels.base
