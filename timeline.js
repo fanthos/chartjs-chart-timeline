@@ -136,7 +136,7 @@
 			var labels = [];
 			var i, j, ilen, jlen, data;
 			var dataLabels = chart.data.labels || [];
-			var elemOpts = me.chart.options.elements;
+			var datasetOptions = me.chart.options.datasets.timeline;
 			var timestamp0, timestamp1;
 			var timestampobj = {};
 
@@ -157,8 +157,8 @@
 						datasets[i] = [];
 
 						for (j = 0, jlen = data.length; j < jlen; ++j) {
-							timestamp0 = parse(me, data[j][elemOpts.keyStart]);
-							timestamp1 = parse(me, data[j][elemOpts.keyEnd]);
+							timestamp0 = parse(me, data[j][datasetOptions.keyStart]);
+							timestamp1 = parse(me, data[j][datasetOptions.keyEnd]);
 							if (timestamp0 > timestamp1) {
 								[timestamp0, timestamp1] = [timestamp1, timestamp0];
 							}
@@ -168,7 +168,7 @@
 							if (max < timestamp1 && timestamp1) {
 								max = timestamp1;
 							}
-							datasets[i][j] = [timestamp0, timestamp1, data[j][elemOpts.keyValue]];
+							datasets[i][j] = [timestamp0, timestamp1, data[j][datasetOptions.keyValue]];
 							if (Object.prototype.hasOwnProperty.call(timestampobj, timestamp0)) {
 								timestampobj[timestamp0] = true;
 								timestamps.push(timestamp0);
@@ -475,6 +475,35 @@
 			'keyEnd'
 		],
 
+		_datasetElementOptions: [
+			'backgroundColor',
+			'borderColor',
+			'borderSkipped',
+			'borderWidth',
+			'hoverBackgroundColor',
+			'hoverBorderColor',
+			'hoverBorderWidth',
+			'barPercentage',
+			'barThickness',
+			'categoryPercentage',
+			'maxBarThickness',
+			'minBarLength',
+			'textPadding',
+			'showText',
+			'keyValue',
+			'keyStart',
+			'keyEnd'
+		],
+
+		initialize: function() {
+			var me = this;
+
+			Chart.controllers.bar.prototype.initialize.apply(me, arguments);
+
+			var elementOptions = me.chart.options.elements;
+			helpers._deprecated('timeline chart', elementOptions.colorFunction, 'options.elements.colorFunction', 'dataset.backgroundColor');
+		},
+
 		update: function(reset) {
 			var me = this;
 			var rects = me.getMeta().data;
@@ -510,7 +539,7 @@
 			var data = me.getDataset().data[index];
 			var start = rectangle._xScale.getPixelForValue(data, index, me.index, options.keyStart || 0);
 			var stop = rectangle._xScale.getPixelForValue(data, index, me.index, options.keyEnd || 1);
-			var labelText = data[options.keyValue || 2];
+			var labelText = data[options.keyValue];
 			var ruler = me.getRuler(index);
 			var pixels = me.calculateBarIndexPixels(me.index, index, ruler, options);
 			// we're (mis)using some intrinsics of getPixelForValue here,
@@ -681,24 +710,7 @@
 				datasetIndex: me.index
 			};
 
-			var keys = [
-				'backgroundColor',
-				'borderColor',
-				'borderWidth',
-				'borderSkipped',
-				'hoverBackgroundColor',
-				'hoverBorderColor',
-				'hoverBorderWidth',
-				'barThickness',
-				'maxBarThickness',
-				'minBarLength',
-				'textPadding',
-				'textColor',
-				'showText',
-				'keyValue',
-				'keyStart',
-				'keyEnd'
-			];
+			var keys = _dataElementOptions;
 
 			for (i = 0, ilen = keys.length; i < ilen; ++i) {
 				key = keys[i];
@@ -739,21 +751,28 @@
 
 	Chart.defaults.timeline = {
 		elements: {
-			backgroundColor: "gold",
-			borderColor: "orange",
-			borderWidth: 2,
-			borderSkipped: 'left',
-			hoverBackgroundColor: "orange",
-			hoverBorderColor: "red",
-			hoverBorderWidth: 1,
-			showText: true,
-			textPadding: 4,
-			minBarLength: 5,
-			keyStart: 0,
-			keyEnd: 1,
-			keyValue: 2,
-			categoryPercentage: 0.9,
-			barPercentage: 0.7
+			rectangle: {
+				backgroundColor: "gold",
+				borderColor: "black",
+				borderWidth: 0,
+				borderSkipped: '',
+				hoverBackgroundColor: "orange",
+				hoverBorderColor: "red",
+				hoverBorderWidth: 1,
+				showText: true,
+				textPadding: 4,
+				minBarLength: 5,
+			}
+		},
+
+		datasets: {
+			timeline: {
+				categoryPercentage: 0.8,
+				barPercentage: 0.9,
+				keyStart: 0,
+				keyEnd: 1,
+				keyValue: 2
+			}
 		},
 
 		layout: {
