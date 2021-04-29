@@ -752,12 +752,12 @@
 	Chart.defaults.timeline = {
 		elements: {
 			rectangle: {
-				backgroundColor: "gold",
-				borderColor: "black",
+				backgroundColor: Chart.defaults.global.backgroundColor,
+				borderColor: Chart.defaults.global.backgroundColor,
 				borderWidth: 0,
 				borderSkipped: '',
-				hoverBackgroundColor: "orange",
-				hoverBorderColor: "red",
+				hoverBackgroundColor: helpers.getHoverColor(Chart.defaults.global.backgroundColor),
+				hoverBorderColor: helpers.getHoverColor(Chart.defaults.global.borderColor),
 				hoverBorderWidth: 1,
 				showText: true,
 				textPadding: 4,
