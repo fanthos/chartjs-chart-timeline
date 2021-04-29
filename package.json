@@ -1,6 +1,6 @@
 {
   "name": "chartjs-chart-timeline",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "timeline chart type for chart.js",
   "main": "src/timeline.js",
   "scripts": {
