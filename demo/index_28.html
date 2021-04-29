@@ -3,7 +3,7 @@
   <head>
     <title>Bar Chart</title>
     <script src="https://cdn.jsdelivr.net/npm/moment/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.js"></script>
     <script src="../timeline.js"></script>
 
     <style>
@@ -43,13 +43,19 @@
                   "Unknown",
                 ],
               ],
+              backgroundColor: '#606080',
+              borderColor: 'black',
+              borderWidth: 5,
             },
             {
               data: [
-                ["2018-01-22T16:00:00.000Z", "2018-01-23T04:57:43.736Z", "On"],
-                ["2018-01-23T04:57:43.736Z", "2018-01-23T04:57:55.437Z", "Off"],
+                ["2018-01-22T16:00:00.000Z", "2018-01-23T03:57:43.736Z", "On"],
+                ["2018-01-23T03:57:43.736Z", "2018-01-23T04:57:55.437Z", "Off"],
                 ["2018-01-23T04:57:55.437Z", "2018-01-23T05:40:44.626Z", "On"],
               ],
+              backgroundColor: ['darkGreen', 'darkRed', 'darkGreen'],
+              borderColor: 'black',
+              borderWidth: 2,
             },
           ],
         },
