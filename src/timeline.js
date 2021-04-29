@@ -556,7 +556,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 			rectangle._model.text = labelText;
 			rectangle._model.textPadding = options.textPadding;
 			rectangle._model.fontColor = helpers.color(options.fontColor || Chart.defaults.global.defaultFontColor).rgbaString();
-			rectangle._model.font = helpers.options._parseFont(options);
+			rectangle._model.font = helpers.options._parseFont(options).string;
 		} else {
 			rectangle._model.text = undefined;
 		}
@@ -595,7 +595,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 					ctx.rect(inner.x, inner.y, inner.w, inner.h);
 					ctx.clip();
 					ctx.lineWidth = 0;
-					ctx.font = vm.font.string;
+					ctx.font = vm.font;
 					ctx.fillStyle = vm.fontColor;
 					ctx.textBaseline = 'middle';
 					ctx.fillText(vm.text, vm.x + vm.textPadding, vm.y + (vm.height) / 2);

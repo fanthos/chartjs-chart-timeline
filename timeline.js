@@ -558,11 +558,11 @@
 			// 			+ ' size: ' + pixels.size
 			// 			+ ' label: ' + labelText);
 
-			rectangle._model.textPadding = options.textPadding || 4;  // note ISSUE
-			rectangle._model.textColor = options.textColor || Chart.defaults.global.defaultFontColor;
-
 			if (options.showText || true) {
 				rectangle._model.text = labelText;
+				rectangle._model.textPadding = options.textPadding;
+				rectangle._model.fontColor = helpers.color(options.fontColor || Chart.defaults.global.defaultFontColor).rgbaString();
+				rectangle._model.font = helpers.options._parseFont(options).string;
 			} else {
 				rectangle._model.text = undefined;
 			}
@@ -600,9 +600,9 @@
 						ctx.beginPath();
 						ctx.rect(inner.x, inner.y, inner.w, inner.h);
 						ctx.clip();
-						ctx.fillStyle = vm.textColor;
 						ctx.lineWidth = 0;
-						ctx.strokeStyle = vm.textColor;
+						ctx.font = vm.font;
+						ctx.fillStyle = vm.fontColor;
 						ctx.textBaseline = 'middle';
 						ctx.fillText(vm.text, vm.x + vm.textPadding, vm.y + (vm.height) / 2);
 						ctx.restore();
@@ -762,6 +762,7 @@
 				showText: true,
 				textPadding: 4,
 				minBarLength: 5,
+				fontColor: '#fff'
 			}
 		},
 
