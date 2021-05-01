@@ -7,10 +7,10 @@
 	Chart = Chart && Chart.hasOwnProperty('default') ? Chart['default'] : Chart;
 	moment = moment && moment.hasOwnProperty('default') ? moment['default'] : moment;
 
+	// use var for const to still support ES5
 	var helpers = Chart.helpers;
 
 	var TimelineScaleConfig = {
-
 		position: 'bottom',
 		tooltips: {
 			mode: 'nearest',
@@ -44,25 +44,6 @@
 			autoSkip: true
 		}
 	};
-
-	function sorter(a, b) {
-		return a - b;
-	}
-
-	function arrayUnique(items) {
-		var hash = {};
-		var out = [];
-		var i, ilen, item;
-
-		for (i = 0, ilen = items.length; i < ilen; ++i) {
-			item = items[i];
-			if (!hash[item]) {
-				hash[item] = true;
-				out.push(item);
-			}
-		}
-		return out;
-	}
 
 	function toTimestamp(scale, input) {
 		var adapter = scale._adapter;
@@ -118,6 +99,26 @@
 		return value;
 	}
 
+	function arrayUnique(items) {
+		var hash = {};
+		var out = [];
+		var i, ilen, item;
+
+		for (i = 0, ilen = items.length; i < ilen; ++i) {
+			item = items[i];
+			if (!hash[item]) {
+				hash[item] = true;
+				out.push(item);
+			}
+		}
+
+		return out;
+	}
+
+	function sorter(a, b) {
+		return a - b;
+	}
+
 	var MIN_INTEGER = Number.MIN_SAFE_INTEGER || -9007199254740991;
 	var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
 
@@ -140,6 +141,7 @@
 			var timestamp0, timestamp1;
 			var timestampobj = {};
 
+			// skip label convert for timeline
 			// Convert labels to timestamps
 			// for (i = 0, ilen = dataLabels.length; i < ilen; ++i) {
 			// 	labels.push(parse(me, dataLabels[i]));
@@ -321,7 +323,7 @@
 		};
 	}
 
-	// modified from original controller.bar
+	// modified from original controller.bar, ignoring isVertical
 	function getBarBounds(vm) {
 		return {
 			left: vm.x,
@@ -504,32 +506,6 @@
 			helpers._deprecated('timeline chart', elementOptions.colorFunction, 'options.elements.colorFunction', 'dataset.backgroundColor');
 		},
 
-		update: function(reset) {
-			var me = this;
-			var rects = me.getMeta().data;
-			var i, ilen;
-
-			me._ruler = me.getRuler();
-
-			// var chartOpts = me.chart.options;
-			// if (chartOpts.textPadding || chartOpts.minBarLength ||
-			// 		chartOpts.showText || chartOpts.colorFunction) {
-			// 	var elemOpts = me.chart.options.elements;
-			// 	elemOpts.textPadding = chartOpts.textPadding || elemOpts.textPadding;
-			// 	elemOpts.minBarLength = chartOpts.minBarLength || elemOpts.minBarLength;
-			// 	elemOpts.colorFunction = chartOpts.colorFunction || elemOpts.colorFunction;
-			// 	elemOpts.minBarLength = chartOpts.minBarLength || elemOpts.minBarLength;
-			// 	if (Chart._tl_depwarn !== true) {
-			// 		console.log('Timeline Chart: Configuration deprecated. Please check document on Github.');
-			// 		Chart._tl_depwarn = true;
-			// 	}
-			// }
-
-			for (i = 0, ilen = rects.length; i < ilen; ++i) {
-				me.updateElement(rects[i], i, reset);
-			}
-		},
-
 		_updateElementGeometry: function(rectangle, index, reset, options) {
 			var me = this;
 
@@ -552,12 +528,6 @@
 			rectangle._model.y = y - (pixels.size / 2);
 			rectangle._model.height = pixels.size;
 
-			// console.log('base: ' + pixels.base
-			// 			+ ' head: ' + pixels.head
-			// 			+ ' center: ' + pixels.center
-			// 			+ ' size: ' + pixels.size
-			// 			+ ' label: ' + labelText);
-
 			if (options.showText || true) {
 				rectangle._model.text = labelText;
 				rectangle._model.textPadding = options.textPadding;
@@ -568,8 +538,7 @@
 			}
 
 			rectangle.draw = function() {
-				// cannot use prototype draw because boundingRects is miscomputed
-				// Chart.elements.Rectangle.prototype.draw.apply(this, arguments);
+				// cannot use any inherited prototype draw here
 				// so copied here from controller.bar
 				var ctx = this._chart.ctx;
 				var vm = this._view;
@@ -615,6 +584,14 @@
 				return mouseX >= bounds.left && mouseX <= bounds.right;
 			};
 
+			rectangle.tooltipPosition = function () {
+	            var vm = this.getCenterPoint();
+	            return {
+	                x: vm.x ,
+	                y: vm.y
+	            };
+	        };
+
 			rectangle.getCenterPoint = function () {
 				var vm = this._view;
 				var x, y;
@@ -642,17 +619,7 @@
 			rectangle.getArea = function() {
 				var vm = this._view;
 
-				// return isVertical(vm)
 				return vm.height * Math.abs(vm.x - vm.base);
-			};
-
-			rectangle.tooltipPosition = function () {
-				var vm = this.getCenterPoint();
-
-				return {
-					x: vm.x ,
-					y: vm.y
-				};
 			};
 
 		},
@@ -738,15 +705,6 @@
 			return this.getMeta().yAxisID;
 		}
 
-	});
-
-	Chart.defaults._set('global', {
-		datasets: {
-			timeline: {
-				categoryPercentage: 0.8,
-				barPercentage: 0.9
-			}
-		}
 	});
 
 	Chart.defaults.timeline = {

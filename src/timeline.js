@@ -317,7 +317,7 @@ function parseBorderWidth(vm, maxW, maxH) {
 	};
 }
 
-// modified from original controller.bar, igonring isVertical
+// modified from original controller.bar, ignoring isVertical
 function getBarBounds(vm) {
 	return {
 		left: vm.x,
@@ -500,32 +500,6 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 		helpers._deprecated('timeline chart', elementOptions.colorFunction, 'options.elements.colorFunction', 'dataset.backgroundColor');
 	},
 
-	update: function(reset) {
-		var me = this;
-		var rects = me.getMeta().data;
-		var i, ilen;
-
-		me._ruler = me.getRuler();
-
-		// var chartOpts = me.chart.options;
-		// if (chartOpts.textPadding || chartOpts.minBarLength ||
-		// 		chartOpts.showText || chartOpts.colorFunction) {
-		// 	var elemOpts = me.chart.options.elements;
-		// 	elemOpts.textPadding = chartOpts.textPadding || elemOpts.textPadding;
-		// 	elemOpts.minBarLength = chartOpts.minBarLength || elemOpts.minBarLength;
-		// 	elemOpts.colorFunction = chartOpts.colorFunction || elemOpts.colorFunction;
-		// 	elemOpts.minBarLength = chartOpts.minBarLength || elemOpts.minBarLength;
-		// 	if (Chart._tl_depwarn !== true) {
-		// 		console.log('Timeline Chart: Configuration deprecated. Please check document on Github.');
-		// 		Chart._tl_depwarn = true;
-		// 	}
-		// }
-
-		for (i = 0, ilen = rects.length; i < ilen; ++i) {
-			me.updateElement(rects[i], i, reset);
-		}
-	},
-
 	_updateElementGeometry: function(rectangle, index, reset, options) {
 		var me = this;
 
@@ -548,12 +522,6 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 		rectangle._model.y = y - (pixels.size / 2);
 		rectangle._model.height = pixels.size;
 
-		// console.log('base: ' + pixels.base
-		// 			+ ' head: ' + pixels.head
-		// 			+ ' center: ' + pixels.center
-		// 			+ ' size: ' + pixels.size
-		// 			+ ' label: ' + labelText);
-
 		if (options.showText || true) {
 			rectangle._model.text = labelText;
 			rectangle._model.textPadding = options.textPadding;
@@ -564,8 +532,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 		}
 
 		rectangle.draw = function() {
-			// cannot use prototype draw because boundingRects is miscomputed
-			// Chart.elements.Rectangle.prototype.draw.apply(this, arguments);
+			// cannot use any inherited prototype draw here
 			// so copied here from controller.bar
 			var ctx = this._chart.ctx;
 			var vm = this._view;
@@ -611,6 +578,14 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 			return mouseX >= bounds.left && mouseX <= bounds.right;
 		};
 
+		rectangle.tooltipPosition = function () {
+            var vm = this.getCenterPoint();
+            return {
+                x: vm.x ,
+                y: vm.y
+            };
+        };
+
 		rectangle.getCenterPoint = function () {
 			var vm = this._view;
 			var x, y;
@@ -638,20 +613,10 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 		rectangle.getArea = function() {
 			var vm = this._view;
 
-			// return isVertical(vm)
-			return false
+			return false  // replace test of isVertical, is always false
 				? vm.width * Math.abs(vm.y - vm.base)
 				: vm.height * Math.abs(vm.x - vm.base);
 		};
-
-		rectangle.tooltipPosition = function () {
-			var vm = this.getCenterPoint();
-
-			return {
-				x: vm.x ,
-				y: vm.y
-			};
-		}
 
 	},
 
@@ -736,15 +701,6 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 		return this.getMeta().yAxisID;
 	}
 
-});
-
-Chart.defaults._set('global', {
-	datasets: {
-		timeline: {
-			categoryPercentage: 0.8,
-			barPercentage: 0.9
-		}
-	}
 });
 
 Chart.defaults.timeline = {
