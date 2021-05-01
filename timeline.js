@@ -522,18 +522,16 @@
 				ctx.fillStyle = vm.backgroundColor;
 				ctx.fillRect(outer.x, outer.y, outer.w, outer.h);
 
-				if (outer.w === inner.w && outer.h === inner.h) {
-					return;
+				if (!(outer.w === inner.w && outer.h === inner.h)) {
+					ctx.save();
+					ctx.beginPath();
+					ctx.rect(outer.x, outer.y, outer.w, outer.h);
+					ctx.clip();
+					ctx.fillStyle = vm.borderColor;
+					ctx.rect(inner.x, inner.y, inner.w, inner.h);
+					ctx.fill('evenodd');
+					ctx.restore();
 				}
-
-				ctx.save();
-				ctx.beginPath();
-				ctx.rect(outer.x, outer.y, outer.w, outer.h);
-				ctx.clip();
-				ctx.fillStyle = vm.borderColor;
-				ctx.rect(inner.x, inner.y, inner.w, inner.h);
-				ctx.fill('evenodd');
-				ctx.restore();
 
 				if (vm.text) {
 					var textRect = ctx.measureText(vm.text);
