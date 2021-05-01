@@ -1,10 +1,10 @@
 import Chart from 'chart.js';
 import moment from 'moment';
 
+// use var for const to still support ES5
 var helpers = Chart.helpers;
 
 var TimelineScaleConfig = {
-
 	position: 'bottom',
 	tooltips: {
 		mode: 'nearest',
@@ -38,25 +38,6 @@ var TimelineScaleConfig = {
 		autoSkip: true
 	}
 };
-
-function sorter(a, b) {
-	return a - b;
-}
-
-function arrayUnique(items) {
-	var hash = {};
-	var out = [];
-	var i, ilen, item;
-
-	for (i = 0, ilen = items.length; i < ilen; ++i) {
-		item = items[i];
-		if (!hash[item]) {
-			hash[item] = true;
-			out.push(item);
-		}
-	}
-	return out;
-}
 
 function toTimestamp(scale, input) {
 	var adapter = scale._adapter;
@@ -112,6 +93,26 @@ function parse(scale, input) {
 	return value;
 }
 
+function arrayUnique(items) {
+	var hash = {};
+	var out = [];
+	var i, ilen, item;
+
+	for (i = 0, ilen = items.length; i < ilen; ++i) {
+		item = items[i];
+		if (!hash[item]) {
+			hash[item] = true;
+			out.push(item);
+		}
+	}
+
+	return out;
+}
+
+function sorter(a, b) {
+	return a - b;
+}
+
 var MIN_INTEGER = Number.MIN_SAFE_INTEGER || -9007199254740991;
 var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
 
@@ -134,6 +135,7 @@ var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
 		var timestamp0, timestamp1;
 		var timestampobj = {};
 
+		// skip label convert for timeline
 		// Convert labels to timestamps
 		// for (i = 0, ilen = dataLabels.length; i < ilen; ++i) {
 		// 	labels.push(parse(me, dataLabels[i]));
@@ -315,7 +317,7 @@ function parseBorderWidth(vm, maxW, maxH) {
 	};
 }
 
-// modified from original controller.bar
+// modified from original controller.bar, igonring isVertical
 function getBarBounds(vm) {
 	return {
 		left: vm.x,
