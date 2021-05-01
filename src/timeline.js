@@ -454,19 +454,7 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 		'keyEnd'
 	],
 
-	_datasetElementOptions: [
-		'backgroundColor',
-		'borderColor',
-		'borderSkipped',
-		'borderWidth',
-		'hoverBackgroundColor',
-		'hoverBorderColor',
-		'hoverBorderWidth',
-		'barPercentage',
-		'barThickness',
-		'categoryPercentage',
-		'maxBarThickness',
-		'minBarLength',
+	_datasetOptions: [
 		'textPadding',
 		'showText',
 		'keyValue',
@@ -638,15 +626,23 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 	/**
 	 * @private
 	 */
-	 _resolveElementOptions: function(element, index) {
+	 _resolveDataElementOptions: function(element, index) {
 		var me = this;
 		var chart = me.chart;
 		var dataset = me.getDataset();
-		var custom = element.custom || {};
-		var options = chart.options.elements || {};
+		var custom = chart.options.datasets.timeline;
+		var options = chart.options.elements.rectangle || {};
 
 		var values = {};
 		var i, ilen, key;
+
+		var datasetKeys = me._datasetOptions;
+		for (i = 0, ilen = datasetKeys.length; i < ilen; ++i) {
+			key = datasetKeys[i];
+			if (dataset[key]) {
+				values[key] = dataset[key];
+			}
+		}
 
 		// Scriptable options
 		var context = {
@@ -656,11 +652,12 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 			datasetIndex: me.index
 		};
 
-		var keys = _dataElementOptions;
+		var keys = me._dataElementOptions;
 
 		for (i = 0, ilen = keys.length; i < ilen; ++i) {
 			key = keys[i];
 			values[key] = helpers.options.resolve([
+				values[key],
 				custom[key],
 				dataset[key],
 				options[key]
@@ -692,7 +689,7 @@ Chart.defaults.timeline = {
 			backgroundColor: Chart.defaults.global.backgroundColor,
 			borderColor: Chart.defaults.global.backgroundColor,
 			borderWidth: 0,
-			borderSkipped: '',
+			borderSkipped: null,
 			hoverBackgroundColor: helpers.getHoverColor(Chart.defaults.global.backgroundColor),
 			hoverBorderColor: helpers.getHoverColor(Chart.defaults.global.borderColor),
 			hoverBorderWidth: 1,
@@ -762,9 +759,12 @@ Chart.defaults.timeline = {
 				return d;
 			},
 			label: function(tooltipItem, data) {
-				var elemOpts = this._chart.options.elements;
+				var elemOpts = data.datasets[tooltipItem.datasetIndex];
 				var d = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-				return [d[elemOpts.keyValue], moment(d[elemOpts.keyStart]).format('L LTS'), moment(d[elemOpts.keyEnd]).format('L LTS')];
+
+				return [d[elemOpts.keyValue || 2],
+					moment(d[elemOpts.keyStart || 0]).format('L LTS'),
+					moment(d[elemOpts.keyEnd || 1]).format('L LTS')];
 			}
 		}
 	}
