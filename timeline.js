@@ -447,20 +447,22 @@
 			'borderWidth',
 			'hoverBackgroundColor',
 			'hoverBorderColor',
+			'hoverBorderWidth'
+		],
+
+		_datasetOptions: [
+			'backgroundColor',
+			'borderColor',
+			'borderSkipped',
+			'borderWidth',
+			'hoverBackgroundColor',
+			'hoverBorderColor',
 			'hoverBorderWidth',
 			'barPercentage',
 			'barThickness',
 			'categoryPercentage',
 			'maxBarThickness',
 			'minBarLength',
-			'textPadding',
-			'showText',
-			'keyValue',
-			'keyStart',
-			'keyEnd'
-		],
-
-		_datasetOptions: [
 			'textPadding',
 			'showText',
 			'keyValue',
@@ -640,14 +642,6 @@
 			var values = {};
 			var i, ilen, key;
 
-			var datasetKeys = me._datasetOptions;
-			for (i = 0, ilen = datasetKeys.length; i < ilen; ++i) {
-				key = datasetKeys[i];
-				if (dataset[key]) {
-					values[key] = dataset[key];
-				}
-			}
-
 			// Scriptable options
 			var context = {
 				chart: chart,
@@ -655,6 +649,15 @@
 				dataset: dataset,
 				datasetIndex: me.index
 			};
+
+			var datasetKeys = me._datasetOptions;
+			for (i = 0, ilen = datasetKeys.length; i < ilen; ++i) {
+				key = datasetKeys[i];
+				values[key] = helpers.options.resolve([
+					dataset[key],
+					custom[key],
+					options[key]], context, index);
+			}
 
 			var keys = me._dataElementOptions;
 
@@ -766,7 +769,9 @@
 					var elemOpts = data.datasets[tooltipItem.datasetIndex];
 					var d = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
 
-					return [d[elemOpts.keyValue || 2], moment(d[elemOpts.keyStart || 0]).format('L LTS'), moment(d[elemOpts.keyEnd || 1]).format('L LTS')];
+					return [d[elemOpts.keyValue || 2],
+						moment(d[elemOpts.keyStart || 0]).format('L LTS'),
+						moment(d[elemOpts.keyEnd || 1]).format('L LTS')];
 				}
 			}
 		}

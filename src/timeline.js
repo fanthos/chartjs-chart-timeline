@@ -441,20 +441,22 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 		'borderWidth',
 		'hoverBackgroundColor',
 		'hoverBorderColor',
+		'hoverBorderWidth'
+	],
+
+	_datasetOptions: [
+		'backgroundColor',
+		'borderColor',
+		'borderSkipped',
+		'borderWidth',
+		'hoverBackgroundColor',
+		'hoverBorderColor',
 		'hoverBorderWidth',
 		'barPercentage',
 		'barThickness',
 		'categoryPercentage',
 		'maxBarThickness',
 		'minBarLength',
-		'textPadding',
-		'showText',
-		'keyValue',
-		'keyStart',
-		'keyEnd'
-	],
-
-	_datasetOptions: [
 		'textPadding',
 		'showText',
 		'keyValue',
@@ -636,14 +638,6 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 		var values = {};
 		var i, ilen, key;
 
-		var datasetKeys = me._datasetOptions;
-		for (i = 0, ilen = datasetKeys.length; i < ilen; ++i) {
-			key = datasetKeys[i];
-			if (dataset[key]) {
-				values[key] = dataset[key];
-			}
-		}
-
 		// Scriptable options
 		var context = {
 			chart: chart,
@@ -651,6 +645,15 @@ Chart.controllers.timeline = Chart.controllers.bar.extend({
 			dataset: dataset,
 			datasetIndex: me.index
 		};
+
+		var datasetKeys = me._datasetOptions;
+		for (i = 0, ilen = datasetKeys.length; i < ilen; ++i) {
+			key = datasetKeys[i];
+			values[key] = helpers.options.resolve([
+				dataset[key],
+				custom[key],
+				options[key]], context, index);
+		}
 
 		var keys = me._dataElementOptions;
 
