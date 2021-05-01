@@ -226,23 +226,6 @@
 			};
 		},
 
-		getPixelForValue: function(value, index, datasetIndex, valueIndex) {
-			var me = this;
-			var time = null;
-
-			if (index !== undefined && datasetIndex !== undefined && valueIndex !== undefined) {
-				time = me._timestamps.datasets[datasetIndex][index][valueIndex];
-			}
-
-			if (time === null) {
-				time = parse(me, value);
-			}
-
-			if (time !== null) {
-				return me.getPixelForOffset(time);
-			}
-		},
-
 		/**
 		 * @private
 		 */
@@ -513,12 +496,12 @@
 			Chart.controllers.bar.prototype._updateElementGeometry.apply(me, arguments);
 
 			var data = me.getDataset().data[index];
-			var start = rectangle._xScale.getPixelForValue(data, index, me.index, options.keyStart || 0);
-			var stop = rectangle._xScale.getPixelForValue(data, index, me.index, options.keyEnd || 1);
+			var start = rectangle._xScale.getPixelForValue(data[options.keyStart]);
+			var stop = rectangle._xScale.getPixelForValue(data[options.keyEnd]);
 			var labelText = data[options.keyValue];
 			var ruler = me.getRuler(index);
 			var pixels = me.calculateBarIndexPixels(me.index, index, ruler, options);
-			// we're (mis)using some intrinsics of getPixelForValue here,
+			// we're (mis)using some intrinsics of getPixelForValue on category axis here,
 			// giving the index instead of the value
 			var y = rectangle._yScale.getPixelForValue(me.index, me.index);
 			// var height = me.calculateBarHeight(ruler);
