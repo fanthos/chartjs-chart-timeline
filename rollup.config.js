@@ -1,16 +1,26 @@
-import resolve from 'rollup-plugin-node-resolve';
-import commonjs from 'rollup-plugin-commonjs';
-import pkg from './package.json';
-import uglify from 'rollup-plugin-uglify';
+const commonjs = require('rollup-plugin-commonjs');
+const resolve = require('rollup-plugin-node-resolve');
+const terser = require('rollup-plugin-terser').terser;
 
+const pkg = require('./package.json');
 
-export default [
+const mainInputFile = 'src/timeline.js';
+const banner = `/*!
+ * chartjs-plugin-timeline.js v${pkg.version}
+ * ${pkg.homepage}
+ * (c) ${new Date().getFullYear()} Boyi C
+ * Released under the BSD 2-Clause License
+ */`;
+
+module.exports = [
     // browser-friendly UMD build
     {
-        input: 'src/timeline.js',
+        input: mainInputFile,
         external: ['chart.js', 'moment'],
         output: {
-            file: 'timeline.js',
+            name: 'Timeline',
+            file: 'dist/chartjs-plugin-timeline.js',
+            banner: banner,
             format: 'umd',
             globals: {
                 'chart.js': 'Chart',
@@ -23,10 +33,11 @@ export default [
         ]
     },
     {
-        input: 'src/timeline.js',
+        input: mainInputFile,
         external: ['chart.js', 'moment'],
         output: {
-            file: 'timeline.min.js',
+            name: 'Timeline',
+            file: 'dist/chartjs-plugin-timeline.min.js',
             format: 'umd',
             globals: {
                 'chart.js': 'Chart',
@@ -36,7 +47,7 @@ export default [
         plugins: [
             resolve(),
             commonjs(),
-            uglify()
+            terser()
         ]
     }
 ];

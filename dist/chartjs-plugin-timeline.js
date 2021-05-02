@@ -1,14 +1,20 @@
+/*!
+ * chartjs-plugin-timeline.js v0.5.0
+ * https://github.com/fanthos/chartjs-chart-timeline#readme
+ * (c) 2021 Boyi C
+ * Released under the BSD 2-Clause License
+ */
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(require('chart.js'), require('moment')) :
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('chart.js'), require('moment')) :
 	typeof define === 'function' && define.amd ? define(['chart.js', 'moment'], factory) :
-	(factory(global.Chart,global.moment));
-}(this, (function (Chart,moment) { 'use strict';
+	(global = global || self, global.Timeline = factory(global.Chart, global.moment));
+}(this, (function (chart, moment) { 'use strict';
 
-	Chart = Chart && Chart.hasOwnProperty('default') ? Chart['default'] : Chart;
-	moment = moment && moment.hasOwnProperty('default') ? moment['default'] : moment;
+	chart = chart && Object.prototype.hasOwnProperty.call(chart, 'default') ? chart['default'] : chart;
+	moment = moment && Object.prototype.hasOwnProperty.call(moment, 'default') ? moment['default'] : moment;
 
 	// use var for const to still support ES5
-	var helpers = Chart.helpers;
+	var helpers = chart.helpers;
 
 	var TimelineScaleConfig = {
 		position: 'bottom',
@@ -122,7 +128,7 @@
 	var MIN_INTEGER = Number.MIN_SAFE_INTEGER || -9007199254740991;
 	var MAX_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
 
-	var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
+	var TimelineScale = chart.scaleService.getScaleConstructor('time').extend({
 
 		determineDataLimits: function() {
 			var me = this;
@@ -256,7 +262,10 @@
 
 	});
 
-	Chart.scaleService.registerScaleType('timeline', TimelineScale, TimelineScaleConfig);
+	chart.scaleService.registerScaleType('timeline', TimelineScale, TimelineScaleConfig);
+
+	// use var for const to still support ES5
+	var helpers$1 = chart.helpers;
 
 	// copied from controller.bar, not modified
 	function swap(orig, v1, v2) {
@@ -290,7 +299,7 @@
 		var skip = parseBorderSkipped(vm);
 		var t, r, b, l;
 
-		if (helpers.isObject(value)) {
+		if (helpers$1.isObject(value)) {
 			t = +value.top || 0;
 			r = +value.right || 0;
 			b = +value.bottom || 0;
@@ -371,7 +380,7 @@
 		var thickness = options.barThickness;
 		var count = ruler.stackCount;
 		var curr = ruler.pixels[index];
-		var min = helpers.isNullOrUndef(thickness)
+		var min = helpers$1.isNullOrUndef(thickness)
 			? computeMinSampleSize(ruler.scale, ruler.pixels)
 			: -1;
 		var size, ratio;
@@ -379,7 +388,7 @@
 		// only modification for timeline, there are no stacks
 		count = 1;
 
-		if (helpers.isNullOrUndef(thickness)) {
+		if (helpers$1.isNullOrUndef(thickness)) {
 			size = min * options.categoryPercentage;
 			ratio = options.barPercentage;
 		} else {
@@ -436,7 +445,7 @@
 		};
 	}
 
-	Chart.controllers.timeline = Chart.controllers.bar.extend({
+	chart.controllers.timeline = chart.controllers.bar.extend({
 
 		/**
 		 * @private
@@ -474,17 +483,17 @@
 		initialize: function() {
 			var me = this;
 
-			Chart.controllers.bar.prototype.initialize.apply(me, arguments);
+			chart.controllers.bar.prototype.initialize.apply(me, arguments);
 
 			var elementOptions = me.chart.options.elements;
-			helpers._deprecated('timeline chart', elementOptions.colorFunction, 'options.elements.colorFunction', 'dataset.backgroundColor');
+			helpers$1._deprecated('timeline chart', elementOptions.colorFunction, 'options.elements.colorFunction', 'dataset.backgroundColor');
 		},
 
 		_updateElementGeometry: function(rectangle, index, reset, options) {
 			var me = this;
 
 			// call regular controller.bar.updateElement
-			Chart.controllers.bar.prototype._updateElementGeometry.apply(me, arguments);
+			chart.controllers.bar.prototype._updateElementGeometry.apply(me, arguments);
 
 			var data = me.getDataset().data[index];
 			var start = rectangle._xScale.getPixelForValue(data[options.keyStart]);
@@ -505,8 +514,8 @@
 			if (options.showText || true) {
 				rectangle._model.text = labelText;
 				rectangle._model.textPadding = options.textPadding;
-				rectangle._model.fontColor = helpers.color(options.fontColor || Chart.defaults.global.defaultFontColor).rgbaString();
-				rectangle._model.font = helpers.options._parseFont(options).string;
+				rectangle._model.fontColor = helpers$1.color(options.fontColor || chart.defaults.global.defaultFontColor).rgbaString();
+				rectangle._model.font = helpers$1.options._parseFont(options).string;
 			} else {
 				rectangle._model.text = undefined;
 			}
@@ -591,7 +600,7 @@
 			rectangle.getArea = function() {
 				var vm = this._view;
 
-				return vm.height * Math.abs(vm.x - vm.base);
+				return  vm.height * Math.abs(vm.x - vm.base);
 			};
 
 		},
@@ -617,7 +626,7 @@
 			var stackIndex = me.getStackIndex(datasetIndex, me.getMeta().stack);
 			var center = range.start + (range.chunk * stackIndex) + (range.chunk / 2);
 			var size = Math.min(
-				helpers.valueOrDefault(options.maxBarThickness, Infinity),
+				helpers$1.valueOrDefault(options.maxBarThickness, Infinity),
 				range.chunk * range.ratio);
 
 			return {
@@ -652,7 +661,7 @@
 			var datasetKeys = me._datasetOptions;
 			for (i = 0, ilen = datasetKeys.length; i < ilen; ++i) {
 				key = datasetKeys[i];
-				values[key] = helpers.options.resolve([
+				values[key] = helpers$1.options.resolve([
 					dataset[key],
 					custom[key],
 					options[key]], context, index);
@@ -662,7 +671,7 @@
 
 			for (i = 0, ilen = keys.length; i < ilen; ++i) {
 				key = keys[i];
-				values[key] = helpers.options.resolve([
+				values[key] = helpers$1.options.resolve([
 					values[key],
 					custom[key],
 					dataset[key],
@@ -689,15 +698,15 @@
 
 	});
 
-	Chart.defaults.timeline = {
+	chart.defaults.timeline = {
 		elements: {
 			rectangle: {
-				backgroundColor: Chart.defaults.global.backgroundColor,
-				borderColor: Chart.defaults.global.backgroundColor,
+				backgroundColor: chart.defaults.global.backgroundColor,
+				borderColor: chart.defaults.global.backgroundColor,
 				borderWidth: 0,
 				borderSkipped: null,
-				hoverBackgroundColor: helpers.getHoverColor(Chart.defaults.global.backgroundColor),
-				hoverBorderColor: helpers.getHoverColor(Chart.defaults.global.borderColor),
+				hoverBackgroundColor: helpers$1.getHoverColor(chart.defaults.global.backgroundColor),
+				hoverBorderColor: helpers$1.getHoverColor(chart.defaults.global.borderColor),
 				hoverBorderWidth: 1,
 				showText: true,
 				textPadding: 4,
@@ -775,5 +784,11 @@
 			}
 		}
 	};
+
+	var timeline = {
+
+	};
+
+	return timeline;
 
 })));
