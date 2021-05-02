@@ -145,7 +145,8 @@ var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
 		// adapted for timeline which has two timestamps instead of one
 		for (i = 0, ilen = (chart.data.datasets || []).length; i < ilen; ++i) {
 			if (chart.isDatasetVisible(i)) {
-				data = chart.data.datasets[i].data;
+				var dataset = chart.data.datasets[i];
+				data = dataset.data;
 
 				// Let's consider that all data have the same format.
 				// for timeline data is in arrays like [start, end, label]
@@ -153,8 +154,8 @@ var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
 					datasets[i] = [];
 
 					for (j = 0, jlen = data.length; j < jlen; ++j) {
-						timestamp0 = parse(me, data[j][datasetOptions.keyStart]);
-						timestamp1 = parse(me, data[j][datasetOptions.keyEnd]);
+						timestamp0 = parse(me, data[j][dataset.keyStart || datasetOptions.keyStart]);
+						timestamp1 = parse(me, data[j][dataset.keyEnd || datasetOptions.keyEnd]);
 						if (timestamp0 > timestamp1) {
 							[timestamp0, timestamp1] = [timestamp1, timestamp0];
 						}
@@ -164,7 +165,7 @@ var TimelineScale = Chart.scaleService.getScaleConstructor('time').extend({
 						if (max < timestamp1 && timestamp1) {
 							max = timestamp1;
 						}
-						datasets[i][j] = [timestamp0, timestamp1, data[j][datasetOptions.keyValue]];
+						datasets[i][j] = [timestamp0, timestamp1, data[j][dataset.keyValue || datasetOptions.keyValue]];
 						if (Object.prototype.hasOwnProperty.call(timestampobj, timestamp0)) {
 							timestampobj[timestamp0] = true;
 							timestamps.push(timestamp0);
